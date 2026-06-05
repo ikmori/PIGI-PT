@@ -1,0 +1,55 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+
+## Visual Studio / Rider Core ##
+*.user
+*.userosscache
+*.sln.docstates
+
+## Carpetas de Compilación (.NET) ##
+[Bb]in/
+[Obj]/
+[Log]/
+[Logs]/
+
+## JetBrains Rider (Específico) ##
+.idea/
+*.sln.iml
+.rider/
+*.idea.*
+
+## Archivos de Usuario y Configuraciones Locales ##
+.vs/
+appsettings.Development.json
+appsettings.Local.json
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Herramientas de Pruebas (xUnit, NUnit, Visual Studio Test) ##
+_ReSharper*/
+*TestResults*
+*.intellij.resharper.*
+.ut/
+
+## Paquetes NuGet ##
+*.nupkg
+**/packages/*
+!**/packages/repositories.config
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Sistemas Operativos ##
+.DS_Store
+Thumbs.db
+
+## Persistencia Local y Caché de Herramientas ##
+*.db
+*.sqlite
+.storage/
+.hangfire/

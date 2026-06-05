@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PIGI-PT-Domain", "PIGI-PT-Domain\PIGI-PT-Domain.csproj", "{8850866D-4EF3-4106-89E4-F0FC305EF1C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PIGI-PT-Infraestructure", "PIGI-PT-Infraestructure\PIGI-PT-Infraestructure.csproj", "{DFBABA32-4BD5-4E87-8AEC-1146908F5C8C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PIGI-PT-Application", "PIGI-PT-Application\PIGI-PT-Application.csproj", "{4467D2E8-3273-403D-836D-F5FBBA34B381}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PIGI-PT-WebApp", "PIGI-PT-WebApp\PIGI-PT-WebApp.csproj", "{F928254C-2342-459E-8ECA-623C06FB531F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PIGI-PT-API", "PIGI-PT-API\PIGI-PT-API.csproj", "{3C4E1C55-F3C1-4B5E-8109-61AEF999010F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8850866D-4EF3-4106-89E4-F0FC305EF1C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8850866D-4EF3-4106-89E4-F0FC305EF1C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8850866D-4EF3-4106-89E4-F0FC305EF1C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8850866D-4EF3-4106-89E4-F0FC305EF1C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFBABA32-4BD5-4E87-8AEC-1146908F5C8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFBABA32-4BD5-4E87-8AEC-1146908F5C8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFBABA32-4BD5-4E87-8AEC-1146908F5C8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFBABA32-4BD5-4E87-8AEC-1146908F5C8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4467D2E8-3273-403D-836D-F5FBBA34B381}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4467D2E8-3273-403D-836D-F5FBBA34B381}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4467D2E8-3273-403D-836D-F5FBBA34B381}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4467D2E8-3273-403D-836D-F5FBBA34B381}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F928254C-2342-459E-8ECA-623C06FB531F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F928254C-2342-459E-8ECA-623C06FB531F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F928254C-2342-459E-8ECA-623C06FB531F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F928254C-2342-459E-8ECA-623C06FB531F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C4E1C55-F3C1-4B5E-8109-61AEF999010F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C4E1C55-F3C1-4B5E-8109-61AEF999010F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C4E1C55-F3C1-4B5E-8109-61AEF999010F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C4E1C55-F3C1-4B5E-8109-61AEF999010F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
