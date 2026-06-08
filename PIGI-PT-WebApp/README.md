@@ -1,23 +1,29 @@
 # Presentation Layer: Blazor Web App (PIGI-PT-WebApp)
 
-**Estado:** ⏳ FASE 5 - Pendiente de implementación  
-**Última actualización:** Enero 2024  
+**Estado:** 🏗️ FASE 5 - En Desarrollo (Estructura de Carpetas y Paquetes Inicializados)  
+**Última actualización:** Junio 2026  
 **Dependencias:** Requiere PIGI-PT-API (⏳ Fase 3) completada
 
 ## Propósito
 La capa de **Presentación - Blazor** proporciona la interfaz de usuario web moderna e interactiva.
 
+## 📦 Paquetes NuGet Instalados
+Para dar soporte a la creación de la interfaz de usuario interactiva y la gestión de autorizaciones en Blazor, se han configurado e instalado los siguientes paquetes NuGet:
+- **BootstrapBlazor (v10.7.1)**: Biblioteca de componentes de interfaz de usuario ricos y listos para producción para Blazor, basados en Bootstrap.
+- **Microsoft.AspNetCore.Components.Authorization (v10.0.8)**: Proporciona las abstracciones y componentes base (`AuthorizeView`, `CascadingAuthenticationState`) para gestionar el estado de autenticación y autorización en la UI.
+
 ## 📋 Status de Implementación
 
 | Componente | Estado | Notas |
 |-----------|--------|-------|
-| **Layout Components** | ⏳ Pendiente | Se crean en Fase 5 (tarea 5.1) |
-| **Page Components** | ⏳ Pendiente | Se crean en Fase 5 (tarea 5.1) |
-| **Shared Components** | ⏳ Pendiente | Se crean en Fase 5 (tarea 5.1) |
-| **Forms & Validation** | ⏳ Pendiente | Se crean en Fase 5 (tarea 5.2) |
-| **API Client Services** | ⏳ Pendiente | Se crean en Fase 5 (tarea 5.2) |
-| **State Management** | ⏳ Pendiente | Se implementa en Fase 5 (tarea 5.3) |
-| **SignalR Real-time** | ⏳ Pendiente | Se implementa post-MVP en Fase 5 |
+| **Estructura de Carpetas** | ✅ Completado | Carpetas y subcarpetas creadas e inicializadas con archivos `.gitkeep` para persistencia en Git. |
+| **Layout Components** | ⏳ Pendiente | Se crearán en la Fase 5 (tarea 5.1). |
+| **Page Components** | ⏳ Pendiente | Se crearán en la Fase 5 (tarea 5.1). |
+| **Shared Components** | ⏳ Pendiente | Se crearán en la Fase 5 (tarea 5.1). |
+| **Forms & Validation** | ⏳ Pendiente | Se crearán en la Fase 5 (tarea 5.2). |
+| **API Client Services** | ⏳ Pendiente | Se crearán en la Fase 5 (tarea 5.2). |
+| **State Management** | ⏳ Pendiente | Se implementará en la Fase 5 (tarea 5.3). |
+| **SignalR Real-time** | ⏳ Pendiente | Se implementará post-MVP en la Fase 5. |
 
 ## ¿Por Qué Blazor?
 

@@ -1,22 +1,30 @@
 # Presentation Layer: Web API (PIGI-PT-API)
 
-**Estado:** ⏳ FASE 3 - Pendiente de implementación  
-**Última actualización:** Enero 2024  
+**Estado:** 🏗️ FASE 3 - En Desarrollo (Estructura de Carpetas y Paquetes Inicializados)  
+**Última actualización:** Junio 2026  
 **Dependencias:** Requiere PIGI-PT-Application (⏳ Fase 2) + PIGI-PT-Infrastructure (⏳ Fase 2)
 
 ## Propósito
 La capa de **Presentación - API** expone los casos de uso del sistema mediante endpoints REST.
 
+## 📦 Paquetes NuGet Instalados
+Para dar soporte a la exposición de endpoints, versionamiento y seguridad, se han configurado e instalado los siguientes paquetes NuGet:
+- **Asp.Versioning.Mvc.ApiExplorer (v10.0.0)**: Facilita la integración del explorador de APIs de ASP.NET Core con Swagger para documentar endpoints versionados.
+- **Microsoft.AspNetCore.Authentication.JwtBearer (v10.0.8)**: Permite validar tokens de acceso JWT enviados por los clientes para proteger los endpoints.
+- **Microsoft.AspNetCore.OpenApi (v10.0.1)**: Proporciona soporte nativo de OpenAPI en ASP.NET Core.
+- **Swashbuckle.AspNetCore (v10.2.1)**: Genera la documentación interactiva Swagger/OpenAPI para probar los endpoints REST desde el navegador.
+
 ## 📋 Status de Implementación
 
 | Componente | Estado | Notas |
 |-----------|--------|-------|
-| **Controllers V1** | ⏳ Pendiente | Se crean en Fase 3 (tarea 3.1) |
-| **Controllers V2** | ⏳ Pendiente | Planificado para Fase 4+ |
-| **Middleware** | ⏳ Pendiente | Se crean en Fase 3 (tarea 3.1) |
-| **Swagger/OpenAPI** | ⏳ Pendiente | Se configura en Fase 3 (tarea 3.3) |
-| **Authentication/JWT** | ⏳ Pendiente | Se implementa en Fase 3 (tarea 3.2) |
-| **Authorization/RBAC** | ⏳ Pendiente | Se implementa en Fase 3 (tarea 3.2) |
+| **Estructura de Carpetas** | ✅ Completado | Carpetas y subcarpetas creadas e inicializadas con archivos `.gitkeep` para persistencia en Git. |
+| **Controllers V1** | ⏳ Pendiente | Se crearán en la Fase 3 (tarea 3.1). |
+| **Controllers V2** | ⏳ Pendiente | Planificado para la Fase 4+. |
+| **Middleware** | ⏳ Pendiente | Se crearán en la Fase 3 (tarea 3.1). |
+| **Swagger/OpenAPI** | ⏳ Pendiente | Se configurará en la Fase 3 (tarea 3.3). |
+| **Authentication/JWT** | ⏳ Pendiente | Se implementará en la Fase 3 (tarea 3.2). |
+| **Authorization/RBAC** | ⏳ Pendiente | Se implementará en la Fase 3 (tarea 3.2). |
 
 ## Principios
 

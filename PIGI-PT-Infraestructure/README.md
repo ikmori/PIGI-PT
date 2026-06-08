@@ -1,7 +1,7 @@
 # Infrastructure Layer (Capa de Infraestructura)
 
-**Estado:** ⏳ FASE 2 - Pendiente de implementación  
-**Última actualización:** Enero 2024  
+**Estado:** 🏗️ FASE 2 - En Desarrollo (Estructura de Carpetas y Paquetes Inicializados)  
+**Última actualización:** Junio 2026  
 **Dependencias:** Requiere PIGI-PT-Domain (✅ Completada)
 
 ## Propósito
@@ -25,18 +25,26 @@ IEmailService        →    EmailService (SMTP/SendGrid)
 IHangfireService     →    HangfireService (Job scheduling)
 ```
 
+## 📦 Paquetes NuGet Instalados
+Para dar soporte al acceso a datos y las tareas en segundo plano de la aplicación, se han configurado e instalado los siguientes paquetes NuGet:
+- **Microsoft.EntityFrameworkCore.SqlServer (v10.0.8)**: Proveedor oficial de Entity Framework Core para conectarse e interactuar con Microsoft SQL Server.
+- **Microsoft.EntityFrameworkCore.Design (v10.0.8)**: Herramientas de tiempo de diseño para EF Core que permiten la generación y ejecución de migraciones.
+- **Hangfire.AspNetCore (v1.8.23)**: Integración de Hangfire con el ciclo de vida e inyección de dependencias de ASP.NET Core.
+- **Hangfire.SqlServer (v1.8.23)**: Proveedor de persistencia de tareas en segundo plano de Hangfire usando Microsoft SQL Server.
+
 ## 📋 Status de Implementación
 
 | Componente | Estado | Notas |
 |-----------|--------|-------|
-| **DbContext** | ⏳ Pendiente | Se crea en tarea 2.1 |
-| **Configurations** | ⏳ Pendiente | Se crean en tarea 2.1 con ValueObject mappings |
-| **Repositories** | ⏳ Pendiente | Se crean en tarea 2.2 |
-| **Specifications** | ⏳ Pendiente | Se crean en tarea 2.2 |
-| **UnitOfWork** | ⏳ Pendiente | Se crea en tarea 2.2 |
-| **Migrations** | ⏳ Pendiente | Se generan en tarea 2.1 |
-| **External Services** | ⏳ Pendiente | Se crean en Fase 4 |
-| **Hangfire Setup** | ⏳ Pendiente | Se crea en Fase 4 |
+| **Estructura de Directorios** | ✅ Completado | Carpetas y subcarpetas creadas e inicializadas con archivos `.gitkeep` para persistencia en Git. |
+| **DbContext** | ⏳ Pendiente | Se creará en la tarea 2.1. |
+| **Configurations** | ⏳ Pendiente | Se crearán en la tarea 2.1 con ValueObject mappings. |
+| **Repositories (Implementación)** | ⏳ Pendiente | Se crearán en la tarea 2.2. |
+| **Specifications (Implementación)** | ⏳ Pendiente | Se crearán en la tarea 2.2. |
+| **UnitOfWork (Implementación)** | ⏳ Pendiente | Se creará en la tarea 2.2. |
+| **Migrations** | ⏳ Pendiente | Se generarán en la tarea 2.1. |
+| **External Services (Implementación)** | ⏳ Pendiente | Se crearán en la Fase 4. |
+| **Hangfire Setup (Implementación)** | ⏳ Pendiente | Se configurará en la Fase 4. |
 
 ## 🗺️ Guía para Fase 2
 

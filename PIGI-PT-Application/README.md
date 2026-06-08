@@ -1,7 +1,7 @@
 # Application Layer (Capa de Aplicación)
 
-**Estado:** ⏳ FASE 2 - Pendiente de implementación  
-**Última actualización:** Enero 2024  
+**Estado:** 🏗️ FASE 2 - En Desarrollo (Abstracciones e Interfaces Inicializadas)  
+**Última actualización:** Junio 2026  
 **Dependencias:** Requiere PIGI-PT-Domain (✅ Completada) + PIGI-PT-Infrastructure (⏳ Pendiente)
 
 ## Propósito
@@ -11,20 +11,30 @@ La capa de **Application** (o Capa de Aplicación) es responsable de:
 2. **CQRS**: Implementar patrón Command Query Responsibility Segregation
 3. **DTOs**: Transformar agregados en objetos transferibles
 4. **Validación**: Aplicar reglas de validación (FluentValidation)
-5. **Ports/Interfaces**: Definir contratos para servicios externos
+5. **Ports/Interfaces**: Definir contratos para servicios externos (repositorios, infraestructura, servicios de dominio)
 6. **Casos de Uso**: Encapsular la lógica de negocio aplicativa
+
+## 📦 Paquetes NuGet Instalados
+Para dar soporte a la capa de aplicación, se han configurado e instalado los siguientes paquetes NuGet:
+- **AutoMapper (v16.1.1)**: Para realizar el mapeo automático y desacoplado entre entidades de dominio y objetos de transferencia de datos (DTOs).
+- **FluentValidation (v12.1.1)**: Para implementar validaciones robustas y declarativas de los comandos y consultas antes de su procesamiento.
+- **MediatR (v14.1.0)**: Para soportar la arquitectura CQRS mediante el envío de mensajes en memoria (Commands, Queries) y el despacho de eventos de dominio a sus respectivos manejadores.
 
 ## 📋 Status de Implementación
 
 | Componente | Estado | Notas |
 |-----------|--------|-------|
-| **Commands** | ⏳ Pendiente | Se crearán después de completar Infrastructure (2.1-2.2) |
-| **Queries** | ⏳ Pendiente | Se crearán después de completar Infrastructure (2.1-2.2) |
-| **DTOs** | ⏳ Pendiente | Se crearán en tarea 2.3 |
-| **Validators** | ⏳ Pendiente | Se crearán con DTOs en tarea 2.3 |
-| **AutoMapper Profiles** | ⏳ Pendiente | Se crearán en tarea 2.5 |
-| **Event Handlers** | ⏳ Pendiente | Se crearán en tarea 2.6 |
-| **DI Configuration** | ⏳ Pendiente | Se completará en tarea 2.7 |
+| **Interfaces CQRS (`ICommand`, `IQuery`)** | ✅ Completado | Abstracciones base creadas y documentadas con comentarios XML. |
+| **Ports (Interfaces de Repositorios)** | ✅ Completado | Contratos específicos para agregados (`ITicketRepository`, `IUsuarioRepository`, etc.) creados y documentados. |
+| **Ports (Interfaces de Servicios)** | ✅ Completado | Contratos para servicios externos e internos (`IIAService`, `INotificationService`, `IAuthenticationService`, etc.) creados y documentados. |
+| **Ports (Interfaces de Infraestructura)** | ✅ Completado | Contratos de `IUnitOfWork` y `IHangfireService` creados y documentados. |
+| **Commands (Implementación)** | ⏳ Pendiente | Se crearán después de completar la capa de Infrastructure (tareas 2.1-2.2). |
+| **Queries (Implementación)** | ⏳ Pendiente | Se crearán después de completar la capa de Infrastructure (tareas 2.1-2.2). |
+| **DTOs** | ⏳ Pendiente | Se crearán en la tarea 2.3. |
+| **Validators** | ⏳ Pendiente | Se crearán en la tarea 2.3 utilizando FluentValidation. |
+| **AutoMapper Profiles** | ⏳ Pendiente | Se crearán en la tarea 2.5. |
+| **Event Handlers** | ⏳ Pendiente | Se crearán en la tarea 2.6. |
+| **DI Configuration** | ⏳ Pendiente | Se completará en la tarea 2.7. |
 
 ## 🗺️ Guía para Fase 2
 
