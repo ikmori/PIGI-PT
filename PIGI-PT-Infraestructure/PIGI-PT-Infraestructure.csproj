@@ -7,4 +7,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\PIGI-PT-Application\PIGI-PT-Application.csproj" />
+      <ProjectReference Include="..\PIGI-PT-Domain\PIGI-PT-Domain.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -8,7 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PIGI-PT-Application\PIGI-PT-Application.csproj" />
+      <ProjectReference Include="..\PIGI-PT-Infraestructure\PIGI-PT-Infraestructure.csproj" />
     </ItemGroup>
 
 </Project>
