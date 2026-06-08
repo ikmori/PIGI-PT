@@ -1,7 +1,5 @@
-﻿using PIGI_PT_Domain.Base;
-using PIGI_PT_Domain.Enums;
-
-namespace PIGI_PT_Domain.Entities
+using PIGI_PT_Domain.Base;
+namespace PIGI_PT_Domain.Aggregates.Ticket
 {
     public class RegistroDeHistorial : InquilinoEntity
     {

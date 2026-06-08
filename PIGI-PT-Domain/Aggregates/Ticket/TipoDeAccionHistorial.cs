@@ -1,4 +1,4 @@
-﻿namespace PIGI_PT_Domain.Enums
+namespace PIGI_PT_Domain.Aggregates.Ticket
 {
     public enum TipoDeAccionHistorial
     {

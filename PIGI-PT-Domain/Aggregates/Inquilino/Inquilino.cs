@@ -1,9 +1,9 @@
-﻿using PIGI_PT_Domain.Base;
+using PIGI_PT_Domain.Base;
 using PIGI_PT_Domain.Events.Inquilino;
 using PIGI_PT_Domain.Exceptions.Inquilino;
 using PIGI_PT_Domain.ValueObjects;
 
-namespace PIGI_PT_Domain.Entities
+namespace PIGI_PT_Domain.Aggregates.Inquilino
 {
     /// <summary>
     /// Agregado Raíz de Inquilino.

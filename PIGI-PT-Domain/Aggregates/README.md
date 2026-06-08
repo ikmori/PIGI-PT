@@ -79,21 +79,18 @@ Esta carpeta contiene las **Aggregate Roots** (raíces de agregados) del sistema
 ```
 Aggregates/
 ├── Ticket/
-│   ├── Ticket.cs              (Raíz de agregado)
-│   └── README.md              (Documentación específica del agregado)
+│   ├── Ticket.cs                  (Raíz de agregado)
+│   ├── RegistroDeHistorial.cs     (Entidad del historial del ticket)
+│   └── TipoDeAccionHistorial.cs   (Enum de acciones de historial)
 ├── Inquilino/
-│   ├── Inquilino.cs           (Raíz de agregado)
-│   └── README.md
+│   └── Inquilino.cs               (Raíz de agregado)
 ├── Usuario/
-│   ├── Usuario.cs             (Raíz de agregado)
-│   └── README.md
+│   └── Usuario.cs                 (Raíz de agregado)
 ├── RiesgoOperacional/
-│   ├── RiesgoOperacional.cs   (Raíz de agregado)
-│   └── README.md
+│   └── RiesgoOperacional.cs       (Raíz de agregado)
 ├── Categoria/
-│   ├── Categoria.cs           (Raíz de agregado)
-│   └── README.md
-└── README.md                  (Este archivo)
+│   └── Categoria.cs               (Raíz de agregado)
+└── README.md                      (Este archivo)
 ```
 
 ## Patrones Implementados

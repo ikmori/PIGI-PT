@@ -3,7 +3,7 @@ using PIGI_PT_Domain.Events.Ticket;
 using PIGI_PT_Domain.Exceptions.Ticket;
 using PIGI_PT_Domain.ValueObjects;
 
-namespace PIGI_PT_Domain.Entities
+namespace PIGI_PT_Domain.Aggregates.Ticket
 {
     /// <summary>
     /// Agregado Raíz (Aggregate Root): Ticket

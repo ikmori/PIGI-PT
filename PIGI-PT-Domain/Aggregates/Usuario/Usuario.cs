@@ -4,7 +4,7 @@ using PIGI_PT_Domain.Exceptions.Usuario;
 using PIGI_PT_Domain.ValueObjects;
 using System;
 
-namespace PIGI_PT_Domain.Entities
+namespace PIGI_PT_Domain.Aggregates.Usuario
 {
     /// <summary>
     /// Agregado Raíz de Usuario.

@@ -190,8 +190,7 @@ Cada capa y componente principal tiene su propio README:
 - [API Layer](./PIGI-PT-API/README.md) - Endpoints REST
 - [WebApp Layer](./PIGI-PT-WebApp/README.md) - Interfaz Blazor
 
-Documentación detallada de arquitectura:
-- [Architecture Summary](./ARCHITECTURE_SUMMARY.md) - Resumen ejecutivo
+
 
 ## 🧪 Testing
 

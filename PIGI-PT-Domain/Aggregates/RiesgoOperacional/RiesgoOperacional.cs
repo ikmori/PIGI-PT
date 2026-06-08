@@ -1,8 +1,8 @@
-﻿using PIGI_PT_Domain.Base;
+using PIGI_PT_Domain.Base;
 using PIGI_PT_Domain.Exceptions.RiesgoOperacional;
 using PIGI_PT_Domain.ValueObjects;
 
-namespace PIGI_PT_Domain.Entities
+namespace PIGI_PT_Domain.Aggregates.RiesgoOperacional
 {
     /// <summary>
     /// Agregado Raíz de RiesgoOperacional.

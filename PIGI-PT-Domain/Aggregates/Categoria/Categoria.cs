@@ -1,7 +1,7 @@
-﻿using PIGI_PT_Domain.Base;
+using PIGI_PT_Domain.Base;
 using PIGI_PT_Domain.Exceptions.Categoria;
 
-namespace PIGI_PT_Domain.Entities
+namespace PIGI_PT_Domain.Aggregates.Categoria
 {
     /// <summary>
     /// Agregado Raíz de Categoria.
