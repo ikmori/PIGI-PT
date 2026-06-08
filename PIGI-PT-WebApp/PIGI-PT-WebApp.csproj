@@ -9,4 +9,9 @@
         <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="BootstrapBlazor" Version="10.7.1" />
+      <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.8" />
+    </ItemGroup>
+
 </Project>
