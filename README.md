@@ -357,10 +357,10 @@ dotnet ef database update
 
 ## 📄 Licencia
 
-Proprietary - Todos los derechos reservados © 2024
+Proprietary - Todos los derechos reservados © 2025
 
 ---
 
-**Última actualización**: Enero 2024
+**Última actualización**: Junio 11 2025
 **Versión**: 1.0.0
 **Estado**: En Desarrollo (Fase 2)
