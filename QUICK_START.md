@@ -38,6 +38,21 @@ mkdir -p Persistence/Configurations
 mkdir -p Persistence/Repositories
 ```
 
+### Paso 1.5: Verificar conexión a base de datos local
+El proyecto utiliza **SQL Server LocalDB** para desarrollo local (incluido con Visual Studio).
+No se requiere instalación adicional.
+
+```json
+// appsettings.Development.json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=PigiPtDb;Trusted_Connection=true;MultipleActiveResultSets=true;TrustServerCertificate=true"
+  }
+}
+```
+
+> ⚠️ **Producción:** Cuando se contrate Azure, el connection string se cambiará a Azure SQL Database en `appsettings.Production.json`. La arquitectura Clean Architecture permite este cambio sin modificar código.
+
 ### Paso 2: Crear PigiPtDbContext
 Archivo: `PIGI-PT-Infraestructure/Persistence/DbContext/PigiPtDbContext.cs`
 
@@ -66,9 +81,12 @@ Ver ROADMAP_FUTURO.md Sección 2.1 para ejemplo completo de:
 
 ### Paso 4: Generate Migration
 ```bash
+# Asegúrate de tener LocalDB disponible (viene con Visual Studio)
 dotnet ef migrations add InitialCreate
 dotnet ef database update
 ```
+
+> La base de datos `PigiPtDb` se creará automáticamente en LocalDB.
 
 ---
 
@@ -93,7 +111,7 @@ dotnet ef database update
 ## 🎯 CRITERIOS DE ÉXITO FASE 2
 
 ✅ Build sin errores  
-✅ Database migrations ejecutadas  
+✅ Database migrations ejecutadas (LocalDB)  
 ✅ Repositories genéricas funcionando  
 ✅ Commands/Queries handlers listos  
 ✅ AutoMapper mappeos correctos  
@@ -150,7 +168,20 @@ Pero primero: **enfócate 100% en Fase 2**
 
 ---
 
-**Último Update:** Enero 2024  
+## ☁️ ESTRATEGIA DE BASE DE DATOS
+
+| Entorno | Motor | Connection String |
+|---|---|---|
+| **Desarrollo local** | SQL Server LocalDB | `(localdb)\MSSQLLocalDB` |
+| **CI/CD (futuro)** | SQL Server Express | Configurable |
+| **Producción (futuro)** | Azure SQL Database | `*.database.windows.net` |
+
+> La migración a Azure SQL es transparente: solo cambia el connection string en `appsettings.Production.json`. No se requieren cambios de código gracias a la abstracción de EF Core.
+
+---
+
+**Último Update:** Junio 2026  
 **Build Status:** ✅ Compilación correcta  
+**Base de datos:** SQL Server LocalDB (desarrollo) → Azure SQL (producción)  
 **Documentación:** ✅ Actualizada  
 **Ready for:** Fase 2 Implementation

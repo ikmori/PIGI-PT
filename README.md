@@ -66,7 +66,7 @@ El proyecto implementa **Clean Architecture** con **Domain-Driven Design (DDD)**
 | **Presentación (Web)** | Interfaz usuario interactiva | Blazor WASM, Bootstrap, SignalR |
 | **Aplicación** | Orquestación de casos de uso | MediatR, CQRS, AutoMapper, FluentValidation |
 | **Dominio** | Lógica y reglas de negocio | C#, DDD, Value Objects, Aggregate Roots |
-| **Infraestructura** | Detalles técnicos | EF Core, Azure SQL, Python API, Hangfire |
+| **Infraestructura** | Detalles técnicos | EF Core, SQL Server / Azure SQL, Python API, Hangfire |
 
 ## 📦 Estructura de Carpetas
 
@@ -112,14 +112,31 @@ PIGI-PT/
 └── README.md (Este archivo)
 ```
 
+## ☁️ Estrategia Cloud
+
+### Plataforma Elegida: **Microsoft Azure**
+
+Se ha decidido utilizar **Microsoft Azure** como plataforma cloud para el proyecto en producción, por su integración nativa con el stack .NET y EF Core.
+
+| Servicio Azure | Uso en PIGI-PT | Tier Recomendado |
+|---|---|---|
+| **Azure SQL Database** | Base de datos principal + Hangfire | Basic (5 DTU, 2GB) |
+| **Azure App Service** | Hosting ASP.NET Core API | Free / B1 |
+| **Azure Static Web Apps** | Hosting Blazor WASM | Free |
+| **Azure Container Apps** | Python FastAPI (IA) | Consumption |
+| **Azure Key Vault** | Gestión de secretos | Standard |
+
+> **Nota:** Durante la fase de desarrollo se utiliza **SQL Server LocalDB** o **SQL Server Express** localmente. La migración a Azure SQL se realizará al contratar los servicios de Azure, cambiando únicamente el connection string en `appsettings.Production.json`.
+
 ## 🚀 Inicio Rápido
 
 ### Prerequisitos
 
 - .NET 10 SDK
 - Visual Studio 2026 Community o superior
-- Azure SQL Server (desarrollo local o cloud)
+- SQL Server LocalDB o SQL Server Express (incluido con Visual Studio)
 - Python 3.10+ (para servicio IA, opcional)
+- Cuenta de Azure (para producción, cuando se contrate el servicio)
 
 ### Instalación
 
@@ -134,12 +151,14 @@ PIGI-PT/
    dotnet restore
    ```
 
-3. **Configurar base de datos**
+3. **Configurar base de datos (desarrollo local)**
    ```bash
-   # Actualizar appsettings.json con connection string
+   # El connection string por defecto usa LocalDB (incluido en Visual Studio)
+   # No requiere instalación adicional para desarrollo
    cd PIGI-PT-Infraestructure
    dotnet ef database update
    ```
+   > Para producción con Azure SQL, configurar el connection string en `appsettings.Production.json`
 
 4. **Ejecutar API**
    ```bash

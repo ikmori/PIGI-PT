@@ -10,7 +10,7 @@ La capa de **Infrastructure** es responsable de implementar los detalles técnic
 1. **Persistence**: Implementar repositorios con EF Core
 2. **External Services**: Integración con APIs externas (Python IA, Email, etc.)
 3. **Data Access**: DbContext, migrations, query builders
-4. **Configuration**: Hangfire, Redis, Azure SQL
+4. **Configuration**: Hangfire, Redis, SQL Server / Azure SQL
 5. **Adapters**: Convertir entre DTOs internos y APIs externas
 
 ## Principio Fundamental
@@ -31,6 +31,16 @@ Para dar soporte al acceso a datos y las tareas en segundo plano de la aplicaci�
 - **Microsoft.EntityFrameworkCore.Design (v10.0.8)**: Herramientas de tiempo de diseño para EF Core que permiten la generación y ejecución de migraciones.
 - **Hangfire.AspNetCore (v1.8.23)**: Integración de Hangfire con el ciclo de vida e inyección de dependencias de ASP.NET Core.
 - **Hangfire.SqlServer (v1.8.23)**: Proveedor de persistencia de tareas en segundo plano de Hangfire usando Microsoft SQL Server.
+
+## ☁️ Estrategia de Base de Datos
+
+| Entorno | Motor | Detalle |
+|---|---|---|
+| **Desarrollo local** | SQL Server LocalDB | Incluido con Visual Studio, sin costo ni instalación adicional |
+| **CI/CD (futuro)** | SQL Server Express | Configurable según pipeline |
+| **Producción (futuro)** | Azure SQL Database | Tier Basic (5 DTU, 2GB) - Pendiente contratación Azure |
+
+> **Migración transparente:** La transición de LocalDB a Azure SQL se realiza únicamente cambiando el connection string en `appsettings.Production.json`. No se requieren cambios de código gracias a la abstracción de EF Core + Clean Architecture.
 
 ## 📋 Status de Implementación
 
@@ -434,7 +444,7 @@ public static class InfrastructureDependencyInjection
 		this IServiceCollection services,
 		IConfiguration configuration)
 	{
-		// DbContext
+	// DbContext - Usa LocalDB en desarrollo, Azure SQL en producción
 		services.AddDbContext<PigiPtDbContext>(options =>
 			options.UseSqlServer(
 				configuration.GetConnectionString("DefaultConnection"),
@@ -470,6 +480,23 @@ public static class InfrastructureDependencyInjection
 builder.Services
 	.AddApplicationServices()
 	.AddInfrastructureServices(builder.Configuration);
+```
+
+**Connection Strings por entorno:**
+```json
+// appsettings.Development.json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=PigiPtDb;Trusted_Connection=true;MultipleActiveResultSets=true;TrustServerCertificate=true"
+  }
+}
+
+// appsettings.Production.json (cuando se contrate Azure)
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=tcp:pigi-pt-server.database.windows.net,1433;Database=PigiPtDb;User ID=<user>;Password=<password>;Encrypt=True;TrustServerCertificate=False;"
+  }
+}
 ```
 
 ## Migrations

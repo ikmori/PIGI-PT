@@ -3,7 +3,7 @@
 ## 📋 RESUMEN ESTADO ACTUAL
 
 **Fase 1 (Domain):** ✅ COMPLETADA  
-**Fase 2 (Application + Infrastructure):** ⏳ PENDIENTE  
+**Fase 2 (Application + Infrastructure):** 🔄 EN PROGRESO (2A ✅ + 2B ✅)  
 **Fase 3 (API + WebApp):** ⏳ PENDIENTE  
 
 ---
@@ -12,7 +12,7 @@
 
 ### Database & EF Core Configuration
 
-- [ ] **Crear PigiPtDbContext**
+- [x] **Crear PigiPtDbContext**
   ```csharp
   // PIGI-PT-Infraestructure/Persistence/PigiPtDbContext.cs
   public class PigiPtDbContext : DbContext
@@ -35,7 +35,7 @@
   }
   ```
 
-- [ ] **Crear EntityTypeConfigurations**
+- [x] **Crear EntityTypeConfigurations**
   ```csharp
   // PIGI-PT-Infraestructure/Persistence/Configurations/
   // TicketConfiguration.cs
@@ -65,12 +65,13 @@
   }
   ```
 
-  - [ ] `InquilinoConfiguration.cs` - Mapeo de Inquilino
-  - [ ] `UsuarioConfiguration.cs` - Mapeo de Usuario con Rol converter
-  - [ ] `RiesgoOperacionalConfiguration.cs` - Mapeo de Riesgos
-  - [ ] `CategoriaConfiguration.cs` - Mapeo de Categoría
+  - [x] `InquilinoConfiguration.cs` - Mapeo de Inquilino
+  - [x] `UsuarioConfiguration.cs` - Mapeo de Usuario con Rol converter
+  - [x] `RiesgoOperacionalConfiguration.cs` - Mapeo de Riesgos
+  - [x] `CategoriaConfiguration.cs` - Mapeo de Categoría
+  - [x] `RegistroDeHistorialConfiguration.cs` - Mapeo de Historial
 
-- [ ] **Crear Value Object Converters**
+- [x] **Crear Value Object Converters**
   ```csharp
   // En cada Configuration:
   builder.Property(e => e.Rol)
@@ -82,9 +83,12 @@
 
 - [ ] **EF Core Migrations**
   ```bash
+  # Desarrollo local con LocalDB (incluido en Visual Studio)
   dotnet ef migrations add InitialCreate -p PIGI-PT-Infraestructure
   dotnet ef database update
   ```
+  > La base de datos `PigiPtDb` se creará automáticamente en LocalDB.
+  > Para producción, se migrará a Azure SQL Database cambiando solo el connection string.
 
 ---
 
@@ -92,7 +96,7 @@
 
 ### BaseRepository & IRepository
 
-- [ ] **Crear Specification Pattern base**
+- [x] **Crear Specification Pattern base** (ya existente en Fase 1)
   ```csharp
   // PIGI-PT-Domain/Specifications/Specification.cs
   public abstract class Specification<T> where T : BaseEntity
@@ -111,7 +115,7 @@
   }
   ```
 
-- [ ] **Crear Specifications para cada agregado**
+- [x] **Crear Specifications para cada agregado**
   ```csharp
   // PIGI-PT-Domain/Specifications/Ticket/
   public class TicketsByInquilinoIdSpec : Specification<Ticket>
@@ -136,12 +140,15 @@
   }
   ```
 
-  - [ ] `TicketsByInquilinoIdSpec`
-  - [ ] `ActiveTicketsSpec`
-  - [ ] `PaginatedTicketsSpec`
-  - [ ] Similar para Inquilino, Usuario, RiesgoOperacional, Categoria
+  - [x] `TicketsByInquilinoIdSpec`
+  - [x] `ActiveTicketsSpec`
+  - [x] `PaginatedTicketsSpec`
+  - [x] `InquilinoByDominioSpec`, `ActiveInquilinosSpec`
+  - [x] `UsuarioByEmailSpec`, `UsuarioByUserNameSpec`, `UsuariosByInquilinoSpec`, `ActiveUsuariosByInquilinoSpec`
+  - [x] `RiesgosByInquilinoSpec`, `RiesgosRequierenRevisionSpec`
+  - [x] `CategoriasByInquilinoSpec`, `CategoriaByNombreSpec`
 
-- [ ] **Crear BaseRepository**
+- [x] **Crear BaseRepository**
   ```csharp
   // PIGI-PT-Infraestructure/Persistence/Repositories/BaseRepository.cs
   public abstract class BaseRepository<T> : IRepository<T> where T : BaseEntity
@@ -187,7 +194,7 @@
   }
   ```
 
-- [ ] **Crear Repository implementations**
+- [x] **Crear Repository implementations**
   ```csharp
   // PIGI-PT-Infraestructure/Persistence/Repositories/TicketRepository.cs
   public class TicketRepository : BaseRepository<Ticket>, ITicketRepository
@@ -198,13 +205,13 @@
   }
   ```
 
-  - [ ] `TicketRepository`
-  - [ ] `InquilinoRepository`
-  - [ ] `UsuarioRepository`
-  - [ ] `RiesgoOperacionalRepository`
-  - [ ] `CategoriaRepository`
+  - [x] `TicketRepository`
+  - [x] `InquilinoRepository`
+  - [x] `UsuarioRepository`
+  - [x] `RiesgoOperacionalRepository`
+  - [x] `CategoriaRepository`
 
-- [ ] **Crear IUnitOfWork**
+- [x] **Crear IUnitOfWork** (interfaz ya existente + implementación creada)
   ```csharp
   // PIGI-PT-Infraestructure/Persistence/UnitOfWork.cs
   public interface IUnitOfWork : IDisposable
@@ -519,10 +526,27 @@
   // AutoMapper
   builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-  // DbContext
+  // DbContext - Desarrollo local con LocalDB
   builder.Services.AddDbContext<PigiPtDbContext>(options =>
 	  options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
   );
+  ```
+
+  **Connection Strings por entorno:**
+  ```json
+  // appsettings.Development.json (LocalDB)
+  {
+    "ConnectionStrings": {
+      "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=PigiPtDb;Trusted_Connection=true;MultipleActiveResultSets=true;TrustServerCertificate=true"
+    }
+  }
+
+  // appsettings.Production.json (Azure SQL - cuando se contrate)
+  {
+    "ConnectionStrings": {
+      "DefaultConnection": "Server=tcp:pigi-pt-server.database.windows.net,1433;Database=PigiPtDb;User ID=<user>;Password=<password>;Encrypt=True;TrustServerCertificate=False;"
+    }
+  }
   ```
 
 ---
@@ -530,13 +554,13 @@
 ## ✅ PHASE 2 CHECKLIST
 
 ### Infrastructure
-- [ ] PigiPtDbContext creado
-- [ ] EntityTypeConfigurations creadas (5)
-- [ ] Value Object Converters implementados
+- [x] PigiPtDbContext creado
+- [x] EntityTypeConfigurations creadas (6: Ticket, Inquilino, Usuario, RiesgoOperacional, Categoria, RegistroDeHistorial)
+- [x] Value Object Converters implementados
 - [ ] Migrations ejecutadas
-- [ ] Repositories creados (5)
-- [ ] UnitOfWork implementado
-- [ ] Specification Pattern implementado
+- [x] Repositories creados (5 + BaseRepository)
+- [x] UnitOfWork implementado
+- [x] Specification Pattern implementado (14 specs)
 
 ### Application
 - [ ] Command base & Command handlers (10+)
@@ -565,8 +589,8 @@
 
 | Tarea | Horas | Completado |
 |---|---|---|
-| EF Core & Migrations | 2-3 | ⏳ |
-| Repositories & Specifications | 3-4 | ⏳ |
+| EF Core & Migrations | 2-3 | ✅ |
+| Repositories & Specifications | 3-4 | ✅ |
 | Commands & Handlers | 4-6 | ⏳ |
 | Queries & Handlers | 3-4 | ⏳ |
 | Validation & Mapping | 2-3 | ⏳ |

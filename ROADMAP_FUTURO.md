@@ -62,8 +62,8 @@
 - [ ] Implementar `IEntityTypeConfiguration<T>` para cada agregado
 - [ ] Crear Value Object converters (Estado → string en BD)
 - [ ] Crear primera migration: `dotnet ef migrations add InitialCreate`
-- [ ] Ejecutar: `dotnet ef database update`
-- [ ] Verificar schema en SQL Server
+- [ ] Ejecutar: `dotnet ef database update` (usa LocalDB en desarrollo)
+- [ ] Verificar schema en SQL Server LocalDB (o SQL Server Express)
 
 **Ejemplo:**
 ```csharp
@@ -300,11 +300,15 @@ builder.Services.AddValidatorsFromAssembly(typeof(CreateTicketCommandValidator).
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-// DbContext
+// DbContext - LocalDB para desarrollo, Azure SQL para producción
 builder.Services.AddDbContext<PigiPtDbContext>(options =>
 	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 ```
+
+> **Nota:** El connection string se resuelve por entorno:
+> - **Desarrollo:** `appsettings.Development.json` → LocalDB
+> - **Producción:** `appsettings.Production.json` → Azure SQL Database
 
 **Tareas:**
 - [ ] Registrar MediatR assembly
@@ -509,6 +513,16 @@ ENERO 2024
 - Domain Events reactivos
 - Auditoría automática
 
+### ✅ Adoptadas (Pre-Fase 2)
+- **Microsoft Azure** como plataforma cloud para producción
+  - Azure SQL Database (Base de datos principal + Hangfire)
+  - Azure App Service (Hosting ASP.NET Core API)
+  - Azure Static Web Apps (Hosting Blazor WASM)
+  - Azure Container Apps (Python FastAPI - IA)
+  - Azure Key Vault (Gestión de secretos)
+- **SQL Server LocalDB** para desarrollo local (sin costo, incluido en Visual Studio)
+- **Estrategia de migración transparente:** Solo cambio de connection string entre entornos
+
 ### ⏳ Por adoptar (Fase 2+)
 - CQRS (Commands ≠ Queries)
 - Event Sourcing (opcional, Fase 5+)
@@ -612,7 +626,10 @@ ENERO 2024
 ---
 
 **Documento:** `ROADMAP_FUTURO.md`  
-**Versión:** 1.0  
+**Versión:** 1.1  
 **Creado:** Enero 2024  
+**Actualizado:** Junio 2026  
 **Status:** ✅ ACTUALIZADO  
-**Próximo paso:** Comenzar Fase 2 cuando se tenga disponibilidad
+**Cloud:** Microsoft Azure (pendiente de contratación)  
+**BD Desarrollo:** SQL Server LocalDB  
+**Próximo paso:** Comenzar Fase 2 con LocalDB
