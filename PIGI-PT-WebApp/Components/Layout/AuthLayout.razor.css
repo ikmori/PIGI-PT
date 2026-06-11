@@ -1,0 +1,22 @@
+.auth-container {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background-color: var(--color-primary-light);
+}
+
+.auth-background {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15) 0%, rgba(15, 23, 42, 1) 100%);
+    z-index: 0;
+}
+
+.auth-content {
+    z-index: 1;
+    width: 100%;
+    max-width: 450px;
+    padding: 2rem;
+}

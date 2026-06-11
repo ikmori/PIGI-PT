@@ -6,6 +6,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// Registrar servicios Mock (Temporal para Fase 2/3)
+builder.Services.AddScoped<PIGI_PT_WebApp.Services.ITicketService, PIGI_PT_WebApp.Services.MockTicketService>();
+builder.Services.AddScoped<PIGI_PT_WebApp.Services.IDashboardService, PIGI_PT_WebApp.Services.MockDashboardService>();
+builder.Services.AddScoped<PIGI_PT_WebApp.Services.IAuthService, PIGI_PT_WebApp.Services.MockAuthService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

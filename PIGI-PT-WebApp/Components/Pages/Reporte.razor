@@ -1,0 +1,91 @@
+@page "/reporte/nuevo"
+@using PIGI_PT_WebApp.Models
+
+<PageTitle>Nuevo Reporte - PIGI-PT</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0 text-dark">Registrar Nuevo Incidente</h2>
+        <p class="text-muted mb-0">Describe el problema detalladamente para que la IA pueda clasificarlo de forma efectiva.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="glass-card p-5">
+            <EditForm Model="NewTicket" class="needs-validation">
+                <div class="mb-4">
+                    <label class="form-label fw-semibold text-dark">Título del Incidente</label>
+                    <input type="text" class="form-control form-control-lg bg-light" placeholder="Ej: No puedo acceder a mi correo electrónico" @bind="NewTicket.Titulo" />
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-dark">Categoría Sugerida</label>
+                        <select class="form-select form-select-lg bg-light text-muted">
+                            <option value="">Seleccione una categoría (Opcional)</option>
+                            <option value="1">Hardware</option>
+                            <option value="2">Software/Aplicaciones</option>
+                            <option value="3">Redes y Conectividad</option>
+                            <option value="4">Accesos y Contraseñas</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-dark">Prioridad Estimada</label>
+                        <select class="form-select form-select-lg bg-light text-muted">
+                            <option value="1">Baja (No urgente)</option>
+                            <option value="2">Media (Afecta mi trabajo)</option>
+                            <option value="3">Alta (Bloquea mi trabajo)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold text-dark">Descripción Detallada</label>
+                    <textarea class="form-control bg-light" rows="6" placeholder="Describe los pasos para reproducir el problema o lo que estabas haciendo cuando ocurrió..." @bind="NewTicket.Descripcion"></textarea>
+                </div>
+
+                <!-- Info Card -->
+                <div class="p-4 bg-info bg-opacity-10 rounded-3 border border-info border-opacity-25 mb-4 d-flex gap-3">
+                    <i class="bi bi-robot fs-2 text-info"></i>
+                    <div>
+                        <h6 class="fw-semibold text-info mb-1">Sanitización y Clasificación Inteligente</h6>
+                        <p class="text-muted small mb-0">Al enviar, tu texto será anonimizado automáticamente para proteger datos sensibles (tarjetas, contraseñas, PII) antes de ser analizado por nuestro motor de IA para asignar el técnico correcto.</p>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="button" class="btn btn-light px-4">Cancelar</button>
+                    <button type="button" class="btn btn-premium px-5 d-flex align-items-center gap-2">
+                        <i class="bi bi-send-fill"></i> Enviar Reporte
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+
+    <!-- Side Help Column -->
+    <div class="col-lg-4">
+        <div class="glass-card p-4 mb-4 bg-primary text-white" style="border:none;">
+            <h5 class="fw-bold mb-3"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Consejos para un buen reporte</h5>
+            <ul class="list-unstyled mb-0 d-flex flex-column gap-3">
+                <li class="d-flex gap-2">
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                    <span class="small opacity-75">Incluye mensajes de error exactos si los hay.</span>
+                </li>
+                <li class="d-flex gap-2">
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                    <span class="small opacity-75">Menciona desde cuándo ocurre el problema.</span>
+                </li>
+                <li class="d-flex gap-2">
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                    <span class="small opacity-75">Indica si solo te pasa a ti o a otros compañeros.</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Ticket NewTicket = new Ticket();
+}
