@@ -1,41 +1,57 @@
+using PIGI_PT_Infraestructure.Configuration;
+using PIGI_PT_Application.Commands.Ticket;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// ── Servicios de Infraestructura (DbContext, Repositorios, UnitOfWork) ────────
+builder.Services.AddInfrastructureServices(builder.Configuration);
+
+// ── MediatR: registra todos los handlers de Application ──────────────────────
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(typeof(CreateTicketCommand).Assembly));
+
+// ── Controllers ───────────────────────────────────────────────────────────────
+builder.Services.AddControllers();
+
+// ── Swagger / OpenAPI ─────────────────────────────────────────────────────────
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "PIGI-PT API",
+        Version = "v1",
+        Description = "Plataforma Inteligente de Gestión y Predicción de Incidentes Tecnológicos"
+    });
+});
+
+// ── CORS ──────────────────────────────────────────────────────────────────────
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ── Middleware Pipeline ───────────────────────────────────────────────────────
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "PIGI-PT API v1");
+        c.RoutePrefix = "swagger";
+    });
 }
 
 app.UseHttpsRedirection();
+app.UseCors();
+app.MapControllers();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast");
+// Health check básico
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
+   .WithName("HealthCheck")
+   .WithTags("System");
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
