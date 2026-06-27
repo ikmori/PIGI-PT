@@ -3,7 +3,7 @@
 ## 📋 RESUMEN ESTADO ACTUAL
 
 **Fase 1 (Domain):** ✅ COMPLETADA  
-**Fase 2 (Application + Infrastructure):** 🔄 EN PROGRESO (2A ✅ + 2B ✅)  
+**Fase 2 (Application + Infrastructure):** ✅ COMPLETADA  
 **Fase 3 (API + WebApp):** ⏳ PENDIENTE  
 
 ---
@@ -244,33 +244,33 @@
 
 ### Application Ports (Interfaces)
 
-- [ ] **Crear interfaces en Application/Ports**
+- [x] **Crear interfaces en Application/Ports**
   ```csharp
-  // PIGI-PT-Application/Ports/Persistence/IRepository.cs
+  // PIGI-PT-Application/Ports/Repositories/IRepository.cs
   public interface IRepository<T> where T : BaseEntity
   {
-	  Task<T> GetByIdAsync(Guid id);
+	  Task<T?> GetByIdAsync(Guid id);
 	  Task<List<T>> GetBySpecificationAsync(Specification<T> spec);
 	  Task AddAsync(T entity);
 	  Task UpdateAsync(T entity);
 	  Task DeleteAsync(T entity);
   }
 
-  // PIGI-PT-Application/Ports/Persistence/ITicketRepository.cs
+  // PIGI-PT-Application/Ports/Repositories/ITicketRepository.cs
   public interface ITicketRepository : IRepository<Ticket>
   {
 	  Task<List<Ticket>> GetActiveByInquilinoAsync(Guid inquilinoId);
   }
   ```
 
-  - [ ] `IRepository<T>`
-  - [ ] `ITicketRepository`
-  - [ ] `IInquilinoRepository`
-  - [ ] `IUsuarioRepository`
-  - [ ] `IRiesgoOperacionalRepository`
-  - [ ] `ICategoriaRepository`
+  - [x] `IRepository<T>`
+  - [x] `ITicketRepository`
+  - [x] `IInquilinoRepository`
+  - [x] `IUsuarioRepository`
+  - [x] `IRiesgoOperacionalRepository`
+  - [x] `ICategoriaRepository`
 
-- [ ] **Crear Service Ports**
+- [x] **Crear Service Ports**
   ```csharp
   // PIGI-PT-Application/Ports/Services/IIAService.cs
   public interface IIAService
@@ -287,10 +287,14 @@
   }
   ```
 
-  - [ ] `IIAService` - Sanitización & Clasificación
-  - [ ] `INotificationService` - Email/Push
-  - [ ] `IAuthenticationService` - JWT, validación
-  - [ ] `IDateTimeProvider` - Para tests
+  - [x] `IIAService` - Sanitización & Clasificación
+  - [x] `INotificationService` - Email/Push
+  - [x] `IAuthenticationService` - JWT, validación
+  - [x] `IDateTimeProvider` - Para tests
+  - [x] `IEmailService` - Servicio de email dedicado (extra)
+  - [x] `ISanitizationService` - Coordinación de sanitización (extra)
+  - [x] `IHangfireService` - Background jobs (extra)
+  - [x] `IUnitOfWork` - Con gestión transaccional (Begin/Commit/Rollback)
 
 ---
 
@@ -557,31 +561,31 @@
 - [x] PigiPtDbContext creado
 - [x] EntityTypeConfigurations creadas (6: Ticket, Inquilino, Usuario, RiesgoOperacional, Categoria, RegistroDeHistorial)
 - [x] Value Object Converters implementados
-- [ ] Migrations ejecutadas
+- [x] Migrations ejecutadas
 - [x] Repositories creados (5 + BaseRepository)
 - [x] UnitOfWork implementado
 - [x] Specification Pattern implementado (14 specs)
 
 ### Application
-- [ ] Command base & Command handlers (10+)
-- [ ] Query base & Query handlers (10+)
-- [ ] FluentValidation validators (10+)
-- [ ] AutoMapper MappingProfile
-- [ ] Domain event handlers (10+)
-- [ ] DTOs creados
+- [x] Command base & Command handlers (10+)
+- [x] Query base & Query handlers (10+)
+- [x] FluentValidation validators (10+)
+- [x] Mapeadores estáticos manuales (reemplazando AutoMapper por simplicidad)
+- [x] Domain event handlers (10+)
+- [x] DTOs creados
 
 ### Dependency Injection
-- [ ] MediatR registrado
-- [ ] Repositories registrados
-- [ ] Services registrados
-- [ ] Validators registrados
-- [ ] AutoMapper registrado
-- [ ] DbContext registrado
+- [x] MediatR registrado
+- [x] Repositories registrados
+- [x] Services registrados
+- [x] Validators registrados
+- [x] Mappers estáticos listos
+- [x] DbContext registrado
 
 ### Testing
-- [ ] Unit tests para handlers
-- [ ] Integration tests con BD
-- [ ] Specification pattern tests
+- [x] Unit tests para handlers
+- [x] Integration tests con BD (InMemory)
+- [x] Specification pattern tests
 
 ---
 
@@ -591,13 +595,13 @@
 |---|---|---|
 | EF Core & Migrations | 2-3 | ✅ |
 | Repositories & Specifications | 3-4 | ✅ |
-| Commands & Handlers | 4-6 | ⏳ |
-| Queries & Handlers | 3-4 | ⏳ |
-| Validation & Mapping | 2-3 | ⏳ |
-| Event Handlers | 3-4 | ⏳ |
-| Unit Tests | 4-6 | ⏳ |
-| Integration Tests | 3-4 | ⏳ |
-| **TOTAL** | **24-34** | ⏳ |
+| Commands & Handlers | 4-6 | ✅ |
+| Queries & Handlers | 3-4 | ✅ |
+| Validation & Mapping | 2-3 | ✅ |
+| Event Handlers | 3-4 | ✅ |
+| Unit Tests | 4-6 | ✅ |
+| Integration Tests | 3-4 | ✅ |
+| **TOTAL** | **24-34** | ✅ |
 
 ---
 

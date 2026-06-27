@@ -6,10 +6,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Registrar servicios Mock (Temporal para Fase 2/3)
+// Registrar HttpClient para comunicación con la API
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5003/") });
+
+// Registrar servicios (Fase 3: Autenticación real, vistas de tickets/dashboard mockeadas por análisis de diseño)
 builder.Services.AddScoped<PIGI_PT_WebApp.Services.ITicketService, PIGI_PT_WebApp.Services.MockTicketService>();
 builder.Services.AddScoped<PIGI_PT_WebApp.Services.IDashboardService, PIGI_PT_WebApp.Services.MockDashboardService>();
-builder.Services.AddScoped<PIGI_PT_WebApp.Services.IAuthService, PIGI_PT_WebApp.Services.MockAuthService>();
+builder.Services.AddScoped<PIGI_PT_WebApp.Services.IAuthService, PIGI_PT_WebApp.Services.ApiAuthService>();
 
 var app = builder.Build();
 

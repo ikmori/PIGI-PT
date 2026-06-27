@@ -20,6 +20,8 @@ namespace PIGI_PT_WebApp.Services
     {
         Task<Usuario> GetCurrentUserAsync();
         Task<int> GetUnreadNotificationsCountAsync();
+        Task<bool> LoginAsync(string email, string password);
+        Task LogoutAsync();
     }
 
     // Modelos auxiliares para el Dashboard

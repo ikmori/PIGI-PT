@@ -1,5 +1,9 @@
 using PIGI_PT_Infraestructure.Configuration;
 using PIGI_PT_Application.Commands.Ticket;
+using Microsoft.OpenApi;
+using FluentValidation;
+using PIGI_PT_Infraestructure.Persistence.DbContext;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +14,9 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(CreateTicketCommand).Assembly));
 
+// ── FluentValidation: registra todos los validadores de Application ───────────
+builder.Services.AddValidatorsFromAssembly(typeof(CreateTicketCommand).Assembly);
+
 // ── Controllers ───────────────────────────────────────────────────────────────
 builder.Services.AddControllers();
 
@@ -17,7 +24,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "PIGI-PT API",
         Version = "v1",
@@ -53,5 +60,25 @@ app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
    .WithName("HealthCheck")
    .WithTags("System");
+
+// Seeding y Migración en Desarrollo
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<PigiPtDbContext>();
+        if (context.Database.IsRelational())
+        {
+            await context.Database.MigrateAsync();
+        }
+        await PigiPtDbSeeder.SeedAsync(context);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ocurrió un error al migrar o sembrar la base de datos.");
+    }
+}
 
 app.Run();

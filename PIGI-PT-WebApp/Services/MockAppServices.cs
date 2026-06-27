@@ -61,5 +61,15 @@ namespace PIGI_PT_WebApp.Services
         {
             return Task.FromResult(3);
         }
+
+        public Task<bool> LoginAsync(string email, string password)
+        {
+            return Task.FromResult(email == "admin@empresa.com" && password == "password123");
+        }
+
+        public Task LogoutAsync()
+        {
+            return Task.CompletedTask;
+        }
     }
 }
