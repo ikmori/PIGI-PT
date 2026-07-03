@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PIGI_PT_Infraestructure.Persistence.DbContext;
 
@@ -11,9 +12,11 @@ using PIGI_PT_Infraestructure.Persistence.DbContext;
 namespace PIGI_PT_Infraestructure.Migrations
 {
     [DbContext(typeof(PigiPtDbContext))]
-    partial class PigiPtDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260703023454_ActualizacionDeModelos")]
+    partial class ActualizacionDeModelos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

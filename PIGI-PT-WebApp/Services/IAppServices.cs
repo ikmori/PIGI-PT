@@ -24,6 +24,30 @@ namespace PIGI_PT_WebApp.Services
         Task LogoutAsync();
     }
 
+    public interface IUsuarioService
+    {
+        Task<List<Usuario>> GetUsuariosAsync(Guid inquilinoId, bool soloActivos = false);
+        Task<Usuario> CreateUsuarioAsync(Usuario usuario, string password);
+        Task<Usuario> DesactivarUsuarioAsync(Guid id, Guid adminId);
+        Task<Usuario> ReactivarUsuarioAsync(Guid id, Guid adminId);
+        Task<Usuario> CambiarRolAsync(Guid id, int nuevoRolValor, Guid modificadorId);
+        Task<Usuario> AsignarCategoriaAsync(Guid id, Guid categoriaId, Guid adminId);
+        Task<Usuario> DesasignarCategoriaAsync(Guid id, Guid categoriaId, Guid adminId);
+    }
+
+    public interface ICategoriaService
+    {
+        Task<List<Categoria>> GetCategoriasAsync(Guid inquilinoId);
+        Task<Categoria> CreateCategoriaAsync(Categoria categoria);
+    }
+
+    public interface IRiesgoService
+    {
+        Task<List<Riesgo>> GetRiesgosAsync(Guid inquilinoId, bool soloUrgentes = false);
+        Task<Riesgo> CreateRiesgoAsync(Riesgo riesgo, Guid userId);
+        Task<Riesgo> ReevaluarImpactoAsync(Guid id, int nuevoImpactoValor, Guid userId);
+    }
+
     // Modelos auxiliares para el Dashboard
     public class DashboardMetrics
     {

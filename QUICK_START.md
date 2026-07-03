@@ -1,32 +1,28 @@
 # 📍 QUICK START - PRÓXIMOS PASOS
 
-**Estado Actual:** Fase 1 ✅ Completada | Fase 2 ⏳ Próxima  
-**Token Budget:** Bajo - Documentación completada, code ready para implementar  
-**Estimado Fase 2:** 25-35 horas (2-3 semanas dedicadas)
+**Estado Actual:** Fase 1, 2, 3 y WebApp MVP ✅ Completadas | Fase 4 (Hangfire, Adapters y HTTP Integration) ⏳ Próxima  
+**Token Budget:** Óptimo - Estructura de controladores e interfaz gráfica completamente integrada y funcional  
+**Próximo Hito (Fase 4):** Integración de servicios en segundo plano y conexión HTTP real del frontend  
 
 ---
 
 ## 📖 DOCUMENTOS CLAVE (LEE EN ESTE ORDEN)
 
 1. **[ROADMAP_FUTURO.md](ROADMAP_FUTURO.md)** ← EMPIEZA AQUÍ
-   - Overview de todas las fases
-   - Desglose detallado de Fase 2
+   - Overview de todas las fases (actualizado a versión 2.0)
+   - Desglose detallado del progreso actual e hitos futuros
    - Ejemplos de código
-   - Timeline visual
 
-2. **[PHASE2_CHECKLIST.md](PHASE2_CHECKLIST.md)**
-   - Checklist táctico paso-a-paso
-   - Tareas específicas por ejecutar
-   - Criterios de aceptación
+2. **[FASE3_API_IMPLEMENTACION.md](FASE3_API_IMPLEMENTACION.md)**
+   - Resumen de la implementación de la API REST de incidentes, RBAC y ruteo interactivo
+   - Endpoints REST de la pila e información del pipeline de desarrollo
 
-3. **[DOMAIN_QUICK_REFERENCE.md](DOMAIN_QUICK_REFERENCE.md)**
-   - Referencia rápida de agregados
-   - Eventos disponibles
-   - Métodos clave
+3. **[PHASE2_CHECKLIST.md](PHASE2_CHECKLIST.md)**
+   - Checklist de infraestructura, mapeo EF Core, migraciones aplicadas e inyección de dependencias
 
 ---
 
-## 🚀 FASE 2: PASOS INICIALES
+## 🚀 FASE 4: PASOS INICIALES
 
 ### Paso 1: Preparar Infrastructure Layer
 ```bash

@@ -48,6 +48,14 @@ namespace PIGI_PT_Infraestructure.Persistence.Configurations
                 .IsRequired()
                 .HasColumnName("Rol");
 
+            // --- Categorías Asignadas (para operadores) ---
+            // Mapea la lista de Guid como una tabla separada OperadorCategorias
+            // EF Core 8+ soporta primitive collections natively
+
+            builder.Property(u => u.CategoriasAsignadasIds)
+                .HasField("_categoriasAsignadasIds")
+                .HasColumnName("CategoriasAsignadasIds");
+
             // --- Multi-tenant ---
 
             builder.Property(u => u.InquilinoId).IsRequired();
@@ -81,3 +89,4 @@ namespace PIGI_PT_Infraestructure.Persistence.Configurations
         }
     }
 }
+

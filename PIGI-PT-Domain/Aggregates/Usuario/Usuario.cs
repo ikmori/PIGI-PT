@@ -3,6 +3,8 @@ using PIGI_PT_Domain.Events.User;
 using PIGI_PT_Domain.Exceptions.Usuario;
 using PIGI_PT_Domain.ValueObjects;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PIGI_PT_Domain.Aggregates.Usuario
 {
@@ -14,12 +16,14 @@ namespace PIGI_PT_Domain.Aggregates.Usuario
     /// - Credenciales (contraseña hasheada)
     /// - Rol con permisos granulares
     /// - Estado activo/inactivo
+    /// - Categorías asignadas (para operadores: define su área de responsabilidad)
     /// 
     /// Invariantes:
     /// - Nombre, email, nombre de usuario no pueden estar vacíos
     /// - El rol debe ser válido
     /// - La contraseña siempre está hasheada
     /// - Solo usuarios activos pueden realizar acciones
+    /// - Solo operadores pueden tener categorías asignadas
     /// </summary>
     public class Usuario : InquilinoEntity
     {
@@ -28,6 +32,16 @@ namespace PIGI_PT_Domain.Aggregates.Usuario
         public string UserName { get; private set; }
         public string Password { get; private set; }  // Siempre hasheada
         public Rol Rol { get; private set; }
+
+        private readonly List<Guid> _categoriasAsignadasIds = new();
+
+        /// <summary>
+        /// IDs de las categorías asignadas a este operador.
+        /// Define el área de responsabilidad: un operador solo ve tickets
+        /// clasificados en estas categorías.
+        /// Solo aplica para usuarios con rol Operador.
+        /// </summary>
+        public IReadOnlyList<Guid> CategoriasAsignadasIds => _categoriasAsignadasIds.AsReadOnly();
 
         private Usuario() : base()
         {
@@ -58,6 +72,73 @@ namespace PIGI_PT_Domain.Aggregates.Usuario
 
             AddDomainEvent(new UsuarioCreadoEvent(Id, inquilinoId, fullName, email, userName, rol));
         }
+
+        /// <summary>
+        /// Asigna una categoría al operador, definiendo su área de responsabilidad.
+        /// Solo usuarios con rol Operador pueden tener categorías asignadas.
+        /// </summary>
+        /// <param name="categoriaId">ID de la categoría a asignar (requerido)</param>
+        /// <param name="modificadorId">ID del administrador que realiza la asignación</param>
+        /// <exception cref="ArgumentException">Si categoriaId o modificadorId son vacíos</exception>
+        /// <exception cref="InvalidOperationException">Si el usuario no es operador</exception>
+        /// <exception cref="UsuarioInactivoException">Si el usuario está inactivo</exception>
+        public void AsignarCategoria(Guid categoriaId, Guid modificadorId)
+        {
+            if (categoriaId == Guid.Empty)
+                throw new ArgumentException("El identificador de la categoría es obligatorio.", nameof(categoriaId));
+
+            if (modificadorId == Guid.Empty)
+                throw new ArgumentException("El identificador del modificador es obligatorio.", nameof(modificadorId));
+
+            if (!IsActive)
+                throw new UsuarioInactivoException(Id, "No se puede asignar categoría a un usuario inactivo.");
+
+            if (!EsOperador())
+                throw new InvalidOperationException("Solo los operadores pueden tener categorías asignadas.");
+
+            if (_categoriasAsignadasIds.Contains(categoriaId))
+                return; // Ya está asignada, no duplicar
+
+            _categoriasAsignadasIds.Add(categoriaId);
+            ModifiedBy = modificadorId;
+            ModifiedAt = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Desasigna una categoría del operador.
+        /// </summary>
+        /// <param name="categoriaId">ID de la categoría a desasignar</param>
+        /// <param name="modificadorId">ID del administrador que realiza la desasignación</param>
+        /// <exception cref="ArgumentException">Si categoriaId o modificadorId son vacíos</exception>
+        /// <exception cref="InvalidOperationException">Si la categoría no está asignada</exception>
+        public void DesasignarCategoria(Guid categoriaId, Guid modificadorId)
+        {
+            if (categoriaId == Guid.Empty)
+                throw new ArgumentException("El identificador de la categoría es obligatorio.", nameof(categoriaId));
+
+            if (modificadorId == Guid.Empty)
+                throw new ArgumentException("El identificador del modificador es obligatorio.", nameof(modificadorId));
+
+            if (!_categoriasAsignadasIds.Contains(categoriaId))
+                throw new InvalidOperationException($"La categoría '{categoriaId}' no está asignada a este operador.");
+
+            _categoriasAsignadasIds.Remove(categoriaId);
+            ModifiedBy = modificadorId;
+            ModifiedAt = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Verifica si el operador tiene asignada una categoría específica.
+        /// </summary>
+        public bool TieneCategoriaAsignada(Guid categoriaId)
+        {
+            return _categoriasAsignadasIds.Contains(categoriaId);
+        }
+
+        /// <summary>
+        /// Verifica si el usuario es operador.
+        /// </summary>
+        public bool EsOperador() => Rol.Valor == Rol.OPERADOR_VALUE;
 
         /// <summary>
         /// Actualiza la contraseña del usuario.
@@ -109,6 +190,11 @@ namespace PIGI_PT_Domain.Aggregates.Usuario
 
             var rolAnterior = Rol;
             Rol = nuevoRol;
+
+            // Si deja de ser operador, limpiar categorías asignadas
+            if (nuevoRol.Valor != Rol.OPERADOR_VALUE)
+                _categoriasAsignadasIds.Clear();
+
             ModifiedBy = modificadorId;
             ModifiedAt = DateTime.UtcNow;
 

@@ -1,5 +1,6 @@
 @inherits LayoutComponentBase
 @inject PIGI_PT_WebApp.Services.IAuthService AuthService
+@inject NavigationManager Navigation
 @using PIGI_PT_WebApp.Models
 
 <div class="page d-flex vh-100 bg-light">
@@ -77,6 +78,11 @@
     protected override async Task OnInitializedAsync()
     {
         currentUser = await AuthService.GetCurrentUserAsync();
+        if (currentUser == null || string.IsNullOrEmpty(currentUser.Email))
+        {
+            Navigation.NavigateTo("login");
+            return;
+        }
         notificationsCount = await AuthService.GetUnreadNotificationsCountAsync();
     }
 }

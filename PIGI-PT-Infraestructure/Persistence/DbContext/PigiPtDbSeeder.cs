@@ -32,8 +32,8 @@ namespace PIGI_PT_Infraestructure.Persistence.DbContext
             // Guardar inquilino para obtener su Id generado
             await context.SaveChangesAsync();
 
-            // 2. Crear Usuario Administrador ligado al Inquilino
-            // Usamos password123 como contraseña hasheada mock
+            // 2. Crear Usuarios ligados al Inquilino con diferentes roles
+            // Usamos password123 como contraseña mock
             var adminUser = new Usuario(
                 inquilino.Id,
                 "Admin PIGI",
@@ -42,7 +42,44 @@ namespace PIGI_PT_Infraestructure.Persistence.DbContext
                 "password123",
                 Rol.SuperAdmin
             );
-            context.Usuarios.Add(adminUser);
+            
+            var mariaUser = new Usuario(
+                inquilino.Id,
+                "María García",
+                "maria@empresa.com",
+                "maria",
+                "password123",
+                Rol.Admin
+            );
+            
+            var carlosUser = new Usuario(
+                inquilino.Id,
+                "Carlos Operador",
+                "carlos@empresa.com",
+                "carlos",
+                "password123",
+                Rol.Operador
+            );
+            
+            var anaUser = new Usuario(
+                inquilino.Id,
+                "Ana López",
+                "ana@empresa.com",
+                "ana",
+                "password123",
+                Rol.Operador
+            );
+            
+            var pedroUser = new Usuario(
+                inquilino.Id,
+                "Pedro Martínez",
+                "pedro@empresa.com",
+                "pedro",
+                "password123",
+                Rol.UsuarioGeneral
+            );
+
+            context.Usuarios.AddRange(adminUser, mariaUser, carlosUser, anaUser, pedroUser);
 
             // 3. Crear Categorías por defecto
             var catHardware = new Categoria("Hardware", "Problemas físicos con equipos (laptops, pantallas, periféricos)", inquilino.Id);
@@ -52,28 +89,34 @@ namespace PIGI_PT_Infraestructure.Persistence.DbContext
 
             context.Categorias.AddRange(catHardware, catSoftware, catRedes, catAccesos);
 
+            // Asignar categorías a los operadores para definir su área de responsabilidad
+            carlosUser.AsignarCategoria(catRedes.Id, adminUser.Id);
+            carlosUser.AsignarCategoria(catHardware.Id, adminUser.Id);
+            anaUser.AsignarCategoria(catSoftware.Id, adminUser.Id);
+            anaUser.AsignarCategoria(catAccesos.Id, adminUser.Id);
+
             // Guardar usuarios y categorías
             await context.SaveChangesAsync();
 
             // 4. Crear Tickets iniciales
-            // Ticket 1: En progreso
-            var ticket1 = new Ticket(inquilino.Id, "Error de conexión VPN", "No puedo acceder a la VPN desde mi casa.", adminUser.Id);
+            // Ticket 1: En progreso, asignado a Carlos (Redes)
+            var ticket1 = new Ticket(inquilino.Id, "Error de conexión VPN", "No puedo acceder a la VPN desde mi casa.", pedroUser.Id);
             ticket1.AplicarSanitizacion("No puedo acceder a la VPN desde mi casa.");
             ticket1.ClasificarPorIA(NivelPrioridad.Alta, catRedes.Id);
-            ticket1.AsignarOperador(adminUser.Id, adminUser.Id);
+            ticket1.AsignarOperador(carlosUser.Id, adminUser.Id);
 
-            // Ticket 2: Nuevo (Pendiente de análisis)
-            var ticket2 = new Ticket(inquilino.Id, "Restablecimiento de contraseña", "Olvidé mi contraseña del portal de nómina.", adminUser.Id);
+            // Ticket 2: Nuevo (Pendiente de análisis) creado por Pedro
+            var ticket2 = new Ticket(inquilino.Id, "Restablecimiento de contraseña", "Olvidé mi contraseña del portal de nómina.", pedroUser.Id);
 
-            // Ticket 3: Resuelto
-            var ticket3 = new Ticket(inquilino.Id, "Caída del servidor de base de datos", "El servidor principal de BD en producción no responde.", adminUser.Id);
+            // Ticket 3: Resuelto por Ana (Software)
+            var ticket3 = new Ticket(inquilino.Id, "Caída del servidor de base de datos", "El servidor principal de BD en producción no responde.", pedroUser.Id);
             ticket3.AplicarSanitizacion("El servidor principal de BD en producción no responde.");
             ticket3.ClasificarPorIA(NivelPrioridad.Critica, catSoftware.Id);
-            ticket3.AsignarOperador(adminUser.Id, adminUser.Id);
-            ticket3.Resolver(adminUser.Id);
+            ticket3.AsignarOperador(anaUser.Id, adminUser.Id);
+            ticket3.Resolver(anaUser.Id);
 
-            // Ticket 4: Analizado por IA
-            var ticket4 = new Ticket(inquilino.Id, "Lentitud en la red", "La red del piso 4 está muy lenta.", adminUser.Id);
+            // Ticket 4: Analizado por IA (Hardware)
+            var ticket4 = new Ticket(inquilino.Id, "Lentitud en la red", "La red del piso 4 está muy lenta.", pedroUser.Id);
             ticket4.AplicarSanitizacion("La red del piso 4 está muy lenta.");
             ticket4.ClasificarPorIA(NivelPrioridad.Media, catRedes.Id);
 

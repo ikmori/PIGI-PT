@@ -1,16 +1,100 @@
+@using PIGI_PT_WebApp.Models
+@inject PIGI_PT_WebApp.Services.IAuthService AuthService
+
 <div class="nav-scrollable px-3 py-4">
     <nav class="nav flex-column gap-2">
+
+        @* ── Dashboard (todos los roles) ── *@
         <NavLink class="nav-link custom-nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="" Match="NavLinkMatch.All">
             <i class="bi bi-grid-1x2-fill fs-5"></i>
-            <span>Dashboard</span>
+            <span>@GetDashboardLabel()</span>
         </NavLink>
+
+        @* ── Tickets — Admin/SuperAdmin: todos | Operador: mi área ── *@
+        @if (EsAdmin())
+        {
+            <NavLink class="nav-link custom-nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="tickets">
+                <i class="bi bi-ticket-detailed fs-5"></i>
+                <span>Tickets</span>
+            </NavLink>
+        }
+        else if (EsOperador())
+        {
+            <NavLink class="nav-link custom-nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="tickets">
+                <i class="bi bi-ticket-detailed fs-5"></i>
+                <span>Mis Tickets Asignados</span>
+            </NavLink>
+        }
+
+        @* ── Historial propio (todos) ── *@
         <NavLink class="nav-link custom-nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="historial">
             <i class="bi bi-clock-history fs-5"></i>
-            <span>Historial</span>
+            <span>@(EsUsuarioGeneral() ? "Mis Reportes" : "Historial")</span>
         </NavLink>
+
+        @* ── Gestión de Usuarios (solo Admin/SuperAdmin) ── *@
+        @if (EsAdmin())
+        {
+            <NavLink class="nav-link custom-nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="usuarios">
+                <i class="bi bi-people-fill fs-5"></i>
+                <span>Usuarios</span>
+            </NavLink>
+        }
+
+        @* ── Gestión de Categorías (solo Admin/SuperAdmin) ── *@
+        @if (EsAdmin())
+        {
+            <NavLink class="nav-link custom-nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="categorias">
+                <i class="bi bi-folder2-open fs-5"></i>
+                <span>Categorías</span>
+            </NavLink>
+        }
+
+        @* ── Riesgos Operacionales (solo Admin/SuperAdmin) ── *@
+        @if (EsAdmin())
+        {
+            <NavLink class="nav-link custom-nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="riesgos">
+                <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                <span>Riesgos</span>
+            </NavLink>
+        }
+
+        @* ── Nuevo Reporte (todos los roles) ── *@
         <NavLink class="nav-link custom-nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="reporte/nuevo">
             <i class="bi bi-plus-circle-fill fs-5"></i>
             <span>Nuevo Reporte</span>
         </NavLink>
+
     </nav>
 </div>
+
+@code {
+    private Usuario? currentUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await AuthService.GetCurrentUserAsync();
+    }
+
+    private bool EsAdmin() =>
+        currentUser != null && (currentUser.Rol == Rol.SuperAdmin || currentUser.Rol == Rol.Admin);
+
+    private bool EsOperador() =>
+        currentUser != null && currentUser.Rol == Rol.Operador;
+
+    private bool EsUsuarioGeneral() =>
+        currentUser != null && currentUser.Rol == Rol.UsuarioGeneral;
+
+    private string GetDashboardLabel()
+    {
+        if (currentUser == null) return "Dashboard";
+        return currentUser.Rol switch
+        {
+            Rol.SuperAdmin => "Dashboard",
+            Rol.Admin => "Dashboard",
+            Rol.Operador => "Mi Panel",
+            Rol.UsuarioGeneral => "Mi Resumen",
+            _ => "Dashboard"
+        };
+    }
+}

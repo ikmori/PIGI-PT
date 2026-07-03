@@ -1,14 +1,14 @@
 # 🗺️ ROADMAP FUTURO - PIGI-PT
 
-**Última actualización:** Enero 2024  
-**Versión:** 1.0  
-**Estado actual:** Fase 1 ✅ Completada | Fase 2 ⏳ Pendiente  
+**Última actualización:** Julio 2026  
+**Versión:** 2.0  
+**Estado actual:** Fase 1, 2, 3 (API) y WebApp (Blazor MVP) ✅ Completadas | Fase 4 (Servicios Externos e Integración) ⏳ Siguiente  
 
 ---
 
 ## 📍 ESTADO ACTUAL DEL PROYECTO
 
-### ✅ Completado (Fase 1)
+### ✅ Completado (Fase 1 - Domain)
 - Domain Layer con DDD
   - 5 Agregados completos (Ticket, Inquilino, Usuario, RiesgoOperacional, Categoria)
   - 4 Value Objects (EstadoTicket, EstadoInquilino, NivelPrioridad, Rol)
@@ -17,20 +17,27 @@
   - Máquinas de estado validadas
   - Auditoría automática en todas las entidades
 
-### ⏳ Pendiente (Fase 2 - Prioritario)
-- Infrastructure Layer (EF Core, BD, Repositories)
-- Application Layer (Commands, Queries, Handlers)
-- Validation & Mapping (FluentValidation, AutoMapper)
+### ✅ Completado (Fase 2 - Application + Infrastructure Core)
+- Infrastructure Layer: DbContext mapeado, migraciones creadas y BaseRepository + Specifications
+- Application Layer: Commands, Queries y Handlers (MediatR), mapeadores y validadores
 
-### ⏳ Pendiente (Fase 3)
-- API Layer (REST Controllers)
-- Authentication & Authorization
-- Hangfire Background Jobs
+### ✅ Completado (Fase 3 - API REST & RBAC)
+- REST Controllers para los 5 agregados (Tickets, Usuarios, Categorias, Inquilinos, Riesgos)
+- Validación de Login en AuthController
+- Estructura y lógica de negocio para asignación manual de operador, filtrado por área/categorías y control de acceso (RBAC)
 
-### ⏳ Pendiente (Fase 4)
-- WebApp (Blazor WASM)
-- Real-time features (SignalR)
-- Analytics & Reporting
+### ✅ Completado (Fase 5 - WebApp Blazor MVP)
+- Interfaz gráfica premium con Blazor en modo interactivo global (`InteractiveServer`)
+- Redirección automática de seguridad y autenticación real contra la API (`admin@empresa.com` y roles mock)
+- NavMenu dinámico según rol de usuario (SuperAdmin, Admin, Operador, UsuarioGeneral)
+- Dashboards diferenciados por rol con KPIs personalizados
+- Vistas completas para Gestión de Tickets (con modal de detalle), Gestión de Usuarios, Categorías y Riesgos Operacionales
+
+### ⏳ Pendiente / Próximos Pasos (Fase 4 - Hangfire & Integración de Servicios)
+- Hangfire Background Jobs (sanitización de tickets por IA, clasificación automática y revisión programada de riesgos)
+- Integración real de servicios externos (Adapters para Python FastAPI de IA, SendGrid para Emails)
+- Reemplazo de datos Mock en la WebApp por llamadas HTTP completas a la API y protección con JWT Auth real
+- Configuración de entornos de producción en Azure
 
 ---
 
@@ -626,10 +633,10 @@ ENERO 2024
 ---
 
 **Documento:** `ROADMAP_FUTURO.md`  
-**Versión:** 1.1  
+**Versión:** 2.0  
 **Creado:** Enero 2024  
-**Actualizado:** Junio 2026  
-**Status:** ✅ ACTUALIZADO  
+**Actualizado:** Julio 2026  
+**Status:** ✅ ACTUALIZADO (Fase 1, 2, 3 e Integración WebApp completadas)  
 **Cloud:** Microsoft Azure (pendiente de contratación)  
 **BD Desarrollo:** SQL Server LocalDB  
-**Próximo paso:** Comenzar Fase 2 con LocalDB
+**Próximo paso:** Comenzar Fase 4 (Hangfire, Adapters Externos y Conexión HTTP WebApp)

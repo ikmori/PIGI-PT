@@ -1,0 +1,173 @@
+@page "/categorias"
+@using PIGI_PT_WebApp.Models
+@using PIGI_PT_WebApp.Services
+@inject IAuthService AuthService
+@inject ICategoriaService CategoriaService
+@using System.Linq
+
+<PageTitle>Categorías - PIGI-PT</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0 text-dark">Gestión de Categorías</h2>
+        <p class="text-muted mb-0">Define las áreas funcionales para clasificar tickets y asignar operadores.</p>
+    </div>
+    <button class="btn btn-premium d-flex align-items-center gap-2" @onclick="MostrarFormCreacion">
+        <i class="bi bi-folder-plus"></i> Nueva Categoría
+    </button>
+</div>
+
+@* ── Lista de Categorías ── *@
+<div class="row g-4">
+    @foreach (var cat in categorias)
+    {
+        <div class="col-md-6 col-lg-4">
+            <div class="glass-card p-4 h-100 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="p-2 rounded @GetCategoriaColorClass(cat)" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi @GetCategoriaIcon(cat) fs-5"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0">@cat.Nombre</h6>
+                            <small class="text-muted">@cat.TicketsCount tickets activos</small>
+                        </div>
+                    </div>
+                    <span class="badge @(cat.IsActive ? "bg-success bg-opacity-10 text-success" : "bg-danger bg-opacity-10 text-danger")">
+                        @(cat.IsActive ? "Activa" : "Inactiva")
+                    </span>
+                </div>
+                <p class="text-muted small mb-3 flex-grow-1">@cat.Descripcion</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-1">
+                        <i class="bi bi-people text-primary"></i>
+                        <small class="text-muted">@cat.OperadoresCount operadores</small>
+                    </div>
+                    <div class="d-flex gap-1">
+                        <button class="btn btn-sm btn-outline-primary" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@* ── Modal de Creación ── *@
+@if (mostrarFormCreacion)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Nueva Categoría</h5>
+                    <button type="button" class="btn-close" @onclick="CerrarFormCreacion"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nombre de la Categoría</label>
+                        <input type="text" class="form-control" @bind="nuevoNombre" placeholder="Ej: Redes, Servidores, Software..." />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Descripción</label>
+                        <textarea class="form-control" rows="3" @bind="nuevaDescripcion" placeholder="Describe el área de responsabilidad..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button class="btn btn-secondary" @onclick="CerrarFormCreacion">Cancelar</button>
+                    <button class="btn btn-premium" @onclick="CrearCategoria">Crear Categoría</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private Usuario? currentUser;
+    private List<CategoriaListItem> categorias = new();
+    private bool mostrarFormCreacion = false;
+
+    private string nuevoNombre = "";
+    private string nuevaDescripcion = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await AuthService.GetCurrentUserAsync();
+        await CargarCategoriasReal();
+    }
+
+    private async Task CargarCategoriasReal()
+    {
+        if (currentUser != null)
+        {
+            var list = await CategoriaService.GetCategoriasAsync(currentUser.InquilinoId);
+            categorias = list.Select(c => new CategoriaListItem
+            {
+                Id = c.Id,
+                Nombre = c.Nombre,
+                Descripcion = c.Descripcion,
+                TicketsCount = new Random().Next(1, 10), // Mocked counters for UI demo
+                OperadoresCount = new Random().Next(1, 3), // Mocked counters for UI demo
+                IsActive = true
+            }).ToList();
+        }
+    }
+
+    private void MostrarFormCreacion() => mostrarFormCreacion = true;
+    private void CerrarFormCreacion() { mostrarFormCreacion = false; nuevoNombre = ""; nuevaDescripcion = ""; }
+
+    private async Task CrearCategoria()
+    {
+        if (!string.IsNullOrWhiteSpace(nuevoNombre) && currentUser != null)
+        {
+            var nueva = new Categoria
+            {
+                Nombre = nuevoNombre,
+                Descripcion = nuevaDescripcion,
+                Id = currentUser.InquilinoId // Map InquilinoId temporarily in Id property
+            };
+            await CategoriaService.CreateCategoriaAsync(nueva);
+            await CargarCategoriasReal();
+            CerrarFormCreacion();
+        }
+    }
+
+    private string GetCategoriaColorClass(CategoriaListItem cat)
+    {
+        var hash = Math.Abs(cat.Nombre.GetHashCode()) % 5;
+        return hash switch
+        {
+            0 => "bg-primary bg-opacity-10 text-primary",
+            1 => "bg-success bg-opacity-10 text-success",
+            2 => "bg-warning bg-opacity-10 text-warning",
+            3 => "bg-info bg-opacity-10 text-info",
+            4 => "bg-danger bg-opacity-10 text-danger",
+            _ => "bg-secondary bg-opacity-10 text-secondary"
+        };
+    }
+
+    private string GetCategoriaIcon(CategoriaListItem cat)
+    {
+        return cat.Nombre.ToLower() switch
+        {
+            "redes" => "bi-hdd-network",
+            "servidores" => "bi-hdd-rack",
+            "software" => "bi-code-square",
+            "seguridad" => "bi-shield-lock",
+            "base de datos" => "bi-database",
+            "help desk" => "bi-headset",
+            _ => "bi-folder2"
+        };
+    }
+
+    private class CategoriaListItem
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public string Nombre { get; set; } = string.Empty;
+        public string Descripcion { get; set; } = string.Empty;
+        public int TicketsCount { get; set; }
+        public int OperadoresCount { get; set; }
+        public bool IsActive { get; set; } = true;
+    }
+}

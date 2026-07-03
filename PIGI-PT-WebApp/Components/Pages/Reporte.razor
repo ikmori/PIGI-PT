@@ -1,5 +1,8 @@
 @page "/reporte/nuevo"
 @using PIGI_PT_WebApp.Models
+@using PIGI_PT_WebApp.Services
+@inject ITicketService TicketService
+@inject NavigationManager Navigation
 
 <PageTitle>Nuevo Reporte - PIGI-PT</PageTitle>
 
@@ -13,10 +16,10 @@
 <div class="row">
     <div class="col-lg-8">
         <div class="glass-card p-5">
-            <EditForm Model="NewTicket" class="needs-validation">
+            <EditForm Model="NewTicket" OnValidSubmit="CrearTicket" class="needs-validation">
                 <div class="mb-4">
                     <label class="form-label fw-semibold text-dark">Título del Incidente</label>
-                    <input type="text" class="form-control form-control-lg bg-light" placeholder="Ej: No puedo acceder a mi correo electrónico" @bind="NewTicket.Titulo" />
+                    <input type="text" class="form-control form-control-lg bg-light" placeholder="Ej: No puedo acceder a mi correo electrónico" @bind="NewTicket.Titulo" required />
                 </div>
 
                 <div class="row mb-4">
@@ -42,7 +45,7 @@
 
                 <div class="mb-4">
                     <label class="form-label fw-semibold text-dark">Descripción Detallada</label>
-                    <textarea class="form-control bg-light" rows="6" placeholder="Describe los pasos para reproducir el problema o lo que estabas haciendo cuando ocurrió..." @bind="NewTicket.Descripcion"></textarea>
+                    <textarea class="form-control bg-light" rows="6" placeholder="Describe los pasos para reproducir el problema o lo que estabas haciendo cuando ocurrió..." @bind="NewTicket.Descripcion" required></textarea>
                 </div>
 
                 <!-- Info Card -->
@@ -55,8 +58,8 @@
                 </div>
 
                 <div class="d-flex justify-content-end gap-3">
-                    <button type="button" class="btn btn-light px-4">Cancelar</button>
-                    <button type="button" class="btn btn-premium px-5 d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-light px-4" @onclick="Cancelar">Cancelar</button>
+                    <button type="submit" class="btn btn-premium px-5 d-flex align-items-center gap-2">
                         <i class="bi bi-send-fill"></i> Enviar Reporte
                     </button>
                 </div>
@@ -88,4 +91,18 @@
 
 @code {
     private Ticket NewTicket = new Ticket();
+
+    private async Task CrearTicket()
+    {
+        if (!string.IsNullOrWhiteSpace(NewTicket.Titulo) && !string.IsNullOrWhiteSpace(NewTicket.Descripcion))
+        {
+            await TicketService.CreateTicketAsync(NewTicket);
+            Navigation.NavigateTo("historial");
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("");
+    }
 }

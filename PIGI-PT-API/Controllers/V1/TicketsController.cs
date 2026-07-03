@@ -35,14 +35,24 @@ namespace PIGI_PT_API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<TicketDto>>> GetTickets(
             [FromQuery] Guid inquilinoId,
-            [FromQuery] string? estado = null)
+            [FromQuery] string? estado = null,
+            [FromQuery] Guid? categoriaId = null,
+            [FromQuery] Guid? operadorId = null,
+            [FromQuery] Guid? createdByUserId = null)
         {
             if (inquilinoId == Guid.Empty)
                 return BadRequest(new { error = "El parámetro inquilinoId es obligatorio." });
 
             _logger.LogInformation("GET /api/v1/tickets - InquilinoId: {InquilinoId}, Estado: {Estado}", inquilinoId, estado);
 
-            var query = new GetTicketsQuery { InquilinoId = inquilinoId, Estado = estado };
+            var query = new GetTicketsQuery
+            {
+                InquilinoId = inquilinoId,
+                Estado = estado,
+                CategoriaId = categoriaId,
+                OperadorAsignadoId = operadorId,
+                CreatedByUserId = createdByUserId
+            };
             var result = await _mediator.Send(query);
             return Ok(result);
         }
@@ -179,5 +189,110 @@ namespace PIGI_PT_API.Controllers.V1
                 return Conflict(new { error = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Asigna manualmente un operador a un ticket.
+        /// Transiciona el estado de Clasificado → EnProgreso.
+        /// Solo Admin/SuperAdmin pueden ejecutar esta acción.
+        /// </summary>
+        [HttpPut("{id:guid}/assign")]
+        [ProducesResponseType(typeof(TicketDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<TicketDto>> AssignOperator(
+            [FromRoute] Guid id,
+            [FromBody] AssignOperatorRequest request)
+        {
+            _logger.LogInformation("PUT /api/v1/tickets/{Id}/assign - OperadorId: {OperadorId}", id, request.OperadorId);
+
+            try
+            {
+                var command = new AssignOperatorCommand
+                {
+                    TicketId = id,
+                    OperadorId = request.OperadorId,
+                    UserId = request.UserId
+                };
+
+                var result = await _mediator.Send(command);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { error = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Obtiene los tickets del área del operador (por sus categorías asignadas).
+        /// </summary>
+        [HttpGet("por-area")]
+        [ProducesResponseType(typeof(List<TicketDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<List<TicketDto>>> GetTicketsByOperadorArea(
+            [FromQuery] Guid inquilinoId,
+            [FromQuery] Guid operadorId)
+        {
+            if (inquilinoId == Guid.Empty || operadorId == Guid.Empty)
+                return BadRequest(new { error = "Los parámetros inquilinoId y operadorId son obligatorios." });
+
+            _logger.LogInformation("GET /api/v1/tickets/por-area - OperadorId: {OperadorId}", operadorId);
+
+            try
+            {
+                var query = new PIGI_PT_Application.Queries.Ticket.GetTicketsByOperadorAreaQuery
+                {
+                    InquilinoId = inquilinoId,
+                    OperadorId = operadorId
+                };
+                var result = await _mediator.Send(query);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Obtiene los tickets creados por un usuario específico (historial propio).
+        /// </summary>
+        [HttpGet("mis-tickets")]
+        [ProducesResponseType(typeof(List<TicketDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<List<TicketDto>>> GetMisTickets(
+            [FromQuery] Guid inquilinoId,
+            [FromQuery] Guid userId)
+        {
+            if (inquilinoId == Guid.Empty || userId == Guid.Empty)
+                return BadRequest(new { error = "Los parámetros inquilinoId y userId son obligatorios." });
+
+            _logger.LogInformation("GET /api/v1/tickets/mis-tickets - UserId: {UserId}", userId);
+
+            var query = new PIGI_PT_Application.Queries.Ticket.GetMisTicketsQuery
+            {
+                InquilinoId = inquilinoId,
+                UserId = userId
+            };
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+    }
+
+    // --- Request DTOs ---
+
+    public class AssignOperatorRequest
+    {
+        public Guid OperadorId { get; set; }
+        public Guid UserId { get; set; }
     }
 }

@@ -1,0 +1,268 @@
+@page "/riesgos"
+@using PIGI_PT_WebApp.Models
+@using PIGI_PT_WebApp.Services
+@inject IAuthService AuthService
+@inject IRiesgoService RiesgoService
+@using System.Linq
+
+<PageTitle>Riesgos Operacionales - PIGI-PT</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0 text-dark">Riesgos Operacionales</h2>
+        <p class="text-muted mb-0">Monitorea y gestiona las amenazas a la infraestructura tecnológica.</p>
+    </div>
+    <button class="btn btn-premium d-flex align-items-center gap-2" @onclick="MostrarFormCreacion">
+        <i class="bi bi-plus-lg"></i> Nuevo Riesgo
+    </button>
+</div>
+
+@* ── Filtros ── *@
+<div class="glass-card p-3 mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Nivel de Impacto</label>
+            <select class="form-select" @bind="filtroImpacto">
+                <option value="">Todos</option>
+                <option value="Critica">Crítico</option>
+                <option value="Alta">Alto</option>
+                <option value="Media">Medio</option>
+                <option value="Baja">Bajo</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Revisión</label>
+            <select class="form-select" @bind="filtroRevision">
+                <option value="">Todos</option>
+                <option value="urgente">Requiere revisión urgente</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label small fw-semibold text-muted">Buscar</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" placeholder="Buscar por servicio..." @bind="filtroBusqueda" @bind:event="oninput" />
+            </div>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-outline-secondary w-100" @onclick="LimpiarFiltros">
+                <i class="bi bi-x-lg me-1"></i>Limpiar
+            </button>
+        </div>
+    </div>
+</div>
+
+@* ── Tabla de Riesgos ── *@
+<div class="glass-card p-0 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">Servicio Afectado</th>
+                    <th>Amenaza</th>
+                    <th>Impacto</th>
+                    <th>Última Revisión</th>
+                    <th>Estado</th>
+                    <th class="pe-4">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var riesgo in RiesgosFiltrados)
+                {
+                    <tr>
+                        <td class="ps-4">
+                            <span class="fw-semibold">@riesgo.ServicioAfectado</span>
+                        </td>
+                        <td>
+                            <span class="text-truncate d-block" style="max-width: 300px;">@riesgo.Amenaza</span>
+                        </td>
+                        <td>
+                            <span class="badge @GetImpactoBadgeClass(riesgo.Impacto)">@riesgo.Impacto</span>
+                        </td>
+                        <td>
+                            <small class="text-muted">@riesgo.UltimaRevision.ToString("dd/MM/yyyy")</small>
+                        </td>
+                        <td>
+                            @if (riesgo.RequiereRevision)
+                            {
+                                <span class="badge bg-danger bg-opacity-10 text-danger">
+                                    <i class="bi bi-exclamation-circle me-1"></i>Requiere Revisión
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success bg-opacity-10 text-success">
+                                    <i class="bi bi-check-circle me-1"></i>Al Día
+                                </span>
+                            }
+                        </td>
+                        <td class="pe-4">
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm btn-outline-primary" title="Reevaluar">
+                                    <i class="bi bi-arrow-repeat"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" title="Ver plan">
+                                    <i class="bi bi-file-text"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="p-3 border-top bg-light">
+        <small class="text-muted">Mostrando @RiesgosFiltrados.Count() de @riesgos.Count riesgos</small>
+    </div>
+</div>
+
+@* ── Modal de Creación ── *@
+@if (mostrarFormCreacion)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Registrar Nuevo Riesgo</h5>
+                    <button type="button" class="btn-close" @onclick="CerrarFormCreacion"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Servicio Afectado</label>
+                            <input type="text" class="form-control" @bind="nuevoServicio" placeholder="Ej: Servidor Web Principal" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Nivel de Impacto</label>
+                            <select class="form-select" @bind="nuevoImpacto">
+                                <option value="1">Bajo</option>
+                                <option value="2">Medio</option>
+                                <option value="3">Alto</option>
+                                <option value="4">Crítico</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Descripción de la Amenaza</label>
+                            <textarea class="form-control" rows="3" @bind="nuevaAmenaza" placeholder="Describe la amenaza identificada..."></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Plan de Mitigación</label>
+                            <textarea class="form-control" rows="3" @bind="nuevoPlan" placeholder="Describe las acciones para mitigar el riesgo..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button class="btn btn-secondary" @onclick="CerrarFormCreacion">Cancelar</button>
+                    <button class="btn btn-premium" @onclick="CrearRiesgo">Registrar Riesgo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<RiesgoListItem> riesgos = new();
+    private bool mostrarFormCreacion = false;
+
+    // Filtros
+    private string filtroImpacto = "";
+    private string filtroRevision = "";
+    private string filtroBusqueda = "";
+
+    // Formulario
+    private string nuevoServicio = "";
+    private string nuevaAmenaza = "";
+    private string nuevoPlan = "";
+    private int nuevoImpacto = 2;
+
+    private Usuario? currentUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await AuthService.GetCurrentUserAsync();
+        await CargarRiesgosReal();
+    }
+
+    private async Task CargarRiesgosReal()
+    {
+        if (currentUser != null)
+        {
+            var list = await RiesgoService.GetRiesgosAsync(currentUser.InquilinoId);
+            riesgos = list.Select(r => new RiesgoListItem
+            {
+                Id = r.Id,
+                ServicioAfectado = r.ServicioAfectado,
+                Amenaza = r.Amenaza,
+                Impacto = r.Impacto,
+                UltimaRevision = r.UltimaRevision,
+                RequiereRevision = r.RequiereRevision
+            }).ToList();
+        }
+    }
+
+    private IEnumerable<RiesgoListItem> RiesgosFiltrados
+    {
+        get
+        {
+            var filtrados = riesgos.AsEnumerable();
+
+            if (!string.IsNullOrEmpty(filtroImpacto))
+                filtrados = filtrados.Where(r => r.Impacto.Contains(filtroImpacto, StringComparison.OrdinalIgnoreCase));
+
+            if (filtroRevision == "urgente")
+                filtrados = filtrados.Where(r => r.RequiereRevision);
+
+            if (!string.IsNullOrEmpty(filtroBusqueda))
+                filtrados = filtrados.Where(r =>
+                    r.ServicioAfectado.Contains(filtroBusqueda, StringComparison.OrdinalIgnoreCase) ||
+                    r.Amenaza.Contains(filtroBusqueda, StringComparison.OrdinalIgnoreCase));
+
+            return filtrados;
+        }
+    }
+
+    private void LimpiarFiltros() { filtroImpacto = ""; filtroRevision = ""; filtroBusqueda = ""; }
+    private void MostrarFormCreacion() => mostrarFormCreacion = true;
+    private void CerrarFormCreacion() { mostrarFormCreacion = false; nuevoServicio = ""; nuevaAmenaza = ""; nuevoPlan = ""; nuevoImpacto = 2; }
+
+    private async Task CrearRiesgo()
+    {
+        if (!string.IsNullOrWhiteSpace(nuevoServicio) && currentUser != null)
+        {
+            var nuevo = new Riesgo
+            {
+                InquilinoId = currentUser.InquilinoId,
+                ServicioAfectado = nuevoServicio,
+                Amenaza = nuevaAmenaza,
+                ImpactoValor = nuevoImpacto,
+                PlanMitigacion = nuevoPlan,
+                UltimaRevision = DateTime.Now
+            };
+            await RiesgoService.CreateRiesgoAsync(nuevo, currentUser.Id);
+            await CargarRiesgosReal();
+            CerrarFormCreacion();
+        }
+    }
+
+    private string GetImpactoBadgeClass(string impacto)
+    {
+        return impacto switch
+        {
+            "Crítico" => "bg-danger",
+            "Alto" => "bg-warning text-dark",
+            "Medio" => "bg-info",
+            "Bajo" => "bg-secondary",
+            _ => "bg-secondary"
+        };
+    }
+
+    private class RiesgoListItem
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public string ServicioAfectado { get; set; } = string.Empty;
+        public string Amenaza { get; set; } = string.Empty;
+        public string Impacto { get; set; } = string.Empty;
+        public DateTime UltimaRevision { get; set; }
+        public bool RequiereRevision { get; set; }
+    }
+}

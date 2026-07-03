@@ -16,9 +16,22 @@ namespace PIGI_PT_Application.DTOs.Ticket
         public string Prioridad { get; set; } = string.Empty;
         public int PrioridadValor { get; set; }
         public Guid? CategoriaId { get; set; }
+        public string? NombreCategoria { get; set; }
         public Guid? OperadorAsignadoId { get; set; }
+        public string? OperadorNombre { get; set; }
         public DateTime CreatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
+
+        /// <summary>
+        /// Nombre del creador del ticket (para contacto directo del operador).
+        /// </summary>
+        public string? CreadorNombre { get; set; }
+
+        /// <summary>
+        /// Email del creador del ticket (para contacto directo del operador).
+        /// </summary>
+        public string? CreadorEmail { get; set; }
+
         public DateTime? ModifiedAt { get; set; }
         public DateTime? FechaResolucion { get; set; }
         public DateTime? FechaAsignacion { get; set; }
@@ -27,3 +40,4 @@ namespace PIGI_PT_Application.DTOs.Ticket
         public bool IsActive { get; set; }
     }
 }
+

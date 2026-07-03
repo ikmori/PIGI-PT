@@ -220,27 +220,26 @@ PUT /api/v1/tickets/{id}/resolve
 
 ## ✅ Estado por capa
 
-| Capa | Estado Fase 3.1 | Pendiente |
-|------|----------------|-----------|
-| **Domain** | ✅ Completo (Fase 1) | — |
-| **Infrastructure** | ✅ DI registrada, repositorios funcionando | Migraciones SQL, Hangfire jobs |
-| **Application** | ✅ DTOs, Commands, Queries para Ticket | Inquilinos, Usuarios, Categorías, FluentValidation |
-| **API — Tickets** | ✅ 5 endpoints funcionales | Asignar operador, Cancelar, Rechazar |
-| **API — Auth** | ⏳ Pendiente | JWT, login, refresh token |
-| **API — Otros** | ⏳ Pendiente | Inquilinos, Usuarios, Categorías, Riesgos |
+| Capa | Estado Actual | Completado / Detalles |
+|------|---------------|-----------------------|
+| **Domain** | ✅ Completo (Fase 1) | Lógica de negocio y entidades ricas |
+| **Infrastructure** | ✅ DI registrada, repositorios y BD listos | Migraciones SQL aplicadas localmente, sembrado completo de usuarios |
+| **Application** | ✅ DTOs, Commands, Queries, Validations | Commands y Queries para todos los agregados, incluyendo lógica de asignación y filtrados específicos |
+| **API — Tickets** | ✅ Endpoints funcionales completos | CRUD completo, `/classify`, `/resolve`, `/assign` y filtrados avanzados |
+| **API — Auth** | ✅ Login funcional | Autenticación real contra base de datos a través de `AuthController` |
+| **API — Otros** | ✅ Controllers completados | Controllers de Inquilinos, Usuarios, Categorías y Riesgos Operacionales |
+| **WebApp — UI** | ✅ Blazor MVP completado | Estructura RBAC, ruteo interactivo, NavMenu dinámico y dashboards personalizados |
 
 ---
 
-## 🗺️ Próximos pasos (Fase 3.2+)
+## 🗺️ Próximos pasos (Fase 4 - Servicios Externos e Integración)
 
-- [ ] Agregar `AuthController` con login JWT
-- [ ] Proteger endpoints con `[Authorize]`
-- [ ] Implementar `AssignOperatorCommand` + endpoint `/assign`
-- [ ] Agregar endpoints para Inquilinos, Usuarios y Categorías
-- [ ] FluentValidation en los command handlers
-- [ ] Configurar migraciones de EF Core con LocalDB
-- [ ] Rate limiting y paginación en `GET /tickets`
+- [ ] Implementar autenticación JWT real en la API y proteger endpoints con `[Authorize]`
+- [ ] Configurar Hangfire y programar los background jobs de sanitización y clasificación por IA
+- [ ] Conectar la WebApp para que realice peticiones HTTP reales a la API (reemplazar mock data providers)
+- [ ] Agregar validaciones con FluentValidation en los command handlers
+- [ ] Configurar rate limiting y paginación en `GET /tickets`
 
 ---
 
-*Implementado en Fase 3.1 — Junio 26, 2026*
+*Actualizado y completado en Julio 2026*

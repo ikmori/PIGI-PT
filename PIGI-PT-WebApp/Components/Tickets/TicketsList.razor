@@ -1,0 +1,337 @@
+@page "/tickets"
+@using PIGI_PT_WebApp.Models
+@using PIGI_PT_WebApp.Services
+@inject ITicketService TicketService
+@inject IAuthService AuthService
+
+<PageTitle>Tickets - PIGI-PT</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0 text-dark">@GetPageTitle()</h2>
+        <p class="text-muted mb-0">@GetPageSubtitle()</p>
+    </div>
+    <a href="reporte/nuevo" class="btn btn-premium d-flex align-items-center gap-2">
+        <i class="bi bi-plus-lg"></i> Nuevo Incidente
+    </a>
+</div>
+
+@* ── Filtros ── *@
+<div class="glass-card p-3 mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Estado</label>
+            <select class="form-select" @bind="filtroEstado">
+                <option value="">Todos</option>
+                <option value="Nuevo">Nuevo</option>
+                <option value="AnalizadoPorIA">Analizado por IA</option>
+                <option value="EnProgreso">En Progreso</option>
+                <option value="Resuelto">Resuelto</option>
+                <option value="Cerrado">Cerrado</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Prioridad</label>
+            <select class="form-select" @bind="filtroPrioridad">
+                <option value="">Todas</option>
+                <option value="Critica">Crítica</option>
+                <option value="Alta">Alta</option>
+                <option value="Media">Media</option>
+                <option value="Baja">Baja</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label small fw-semibold text-muted">Buscar</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" placeholder="Buscar por título..." @bind="filtroBusqueda" @bind:event="oninput" />
+            </div>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-outline-secondary w-100" @onclick="LimpiarFiltros">
+                <i class="bi bi-x-lg me-1"></i>Limpiar
+            </button>
+        </div>
+    </div>
+</div>
+
+@* ── Tabla de Tickets ── *@
+@if (tickets == null)
+{
+    <div class="text-center mt-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+}
+else if (!TicketsFiltrados.Any())
+{
+    <div class="glass-card p-5 text-center">
+        <i class="bi bi-inbox fs-1 text-muted d-block mb-3"></i>
+        <h5 class="text-muted">No se encontraron tickets</h5>
+        <p class="text-muted small">Intenta ajustar los filtros o crea un nuevo reporte.</p>
+    </div>
+}
+else
+{
+    <div class="glass-card p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Código</th>
+                        <th>Título</th>
+                        <th>Estado</th>
+                        <th>Prioridad</th>
+                        <th>Asignado a</th>
+                        <th>Fecha</th>
+                        <th class="pe-4">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ticket in TicketsFiltrados)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <span class="fw-semibold text-primary">@ticket.Codigo</span>
+                            </td>
+                            <td>
+                                <div>
+                                    <span class="fw-medium">@ticket.Titulo</span>
+                                    @if (ticket.Sanitizado)
+                                    {
+                                        <i class="bi bi-robot text-info ms-1" title="Analizado por IA"></i>
+                                    }
+                                </div>
+                                <small class="text-muted text-truncate d-block" style="max-width: 300px;">@ticket.Descripcion</small>
+                            </td>
+                            <td>
+                                <span class="badge badge-status @GetBadgeClass(ticket.Estado)">@ticket.Estado.ToString()</span>
+                            </td>
+                            <td>
+                                <span class="badge @GetPrioridadBadgeClass(ticket.Prioridad)">@ticket.Prioridad.ToString()</span>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(ticket.AsignadoANombre))
+                                {
+                                    <span class="d-flex align-items-center gap-1">
+                                        <i class="bi bi-person-circle text-primary"></i>
+                                        @ticket.AsignadoANombre
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+                            <td>
+                                <small class="text-muted">@ticket.FechaCreacion.ToString("dd/MM HH:mm")</small>
+                            </td>
+                            <td class="pe-4">
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-outline-primary" title="Ver detalle" @onclick="() => VerDetalle(ticket)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    @if (EsAdmin() && ticket.Estado == EstadoTicket.AnalizadoPorIA)
+                                    {
+                                        <button class="btn btn-sm btn-outline-success" title="Asignar operador">
+                                            <i class="bi bi-person-plus"></i>
+                                        </button>
+                                    }
+                                    @if ((EsAdmin() || EsOperador()) && ticket.Estado == EstadoTicket.EnProgreso)
+                                    {
+                                        <button class="btn btn-sm btn-outline-info" title="Resolver">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center">
+            <small class="text-muted">Mostrando @TicketsFiltrados.Count() de @tickets.Count tickets</small>
+        </div>
+    </div>
+}
+
+@* ── Modal de Detalle ── *@
+@if (ticketSeleccionado != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">@ticketSeleccionado.Codigo — @ticketSeleccionado.Titulo</h5>
+                    <button type="button" class="btn-close" @onclick="CerrarDetalle"></button>
+                </div>
+                <div class="modal-body pt-2">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="small fw-semibold text-muted d-block">Estado</label>
+                            <span class="badge badge-status @GetBadgeClass(ticketSeleccionado.Estado) fs-6">@ticketSeleccionado.Estado.ToString()</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small fw-semibold text-muted d-block">Prioridad</label>
+                            <span class="badge @GetPrioridadBadgeClass(ticketSeleccionado.Prioridad) fs-6">@ticketSeleccionado.Prioridad.ToString()</span>
+                        </div>
+                        <div class="col-12">
+                            <label class="small fw-semibold text-muted d-block">Descripción</label>
+                            <p class="mb-0">@ticketSeleccionado.Descripcion</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small fw-semibold text-muted d-block">Creado por</label>
+                            <span><i class="bi bi-person me-1"></i>@ticketSeleccionado.CreadorNombre</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small fw-semibold text-muted d-block">Asignado a</label>
+                            @if (!string.IsNullOrEmpty(ticketSeleccionado.AsignadoANombre))
+                            {
+                                <span><i class="bi bi-person-badge me-1"></i>@ticketSeleccionado.AsignadoANombre</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Sin asignar</span>
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small fw-semibold text-muted d-block">Fecha creación</label>
+                            <span>@ticketSeleccionado.FechaCreacion.ToString("dd/MM/yyyy HH:mm:ss")</span>
+                        </div>
+                        @if (ticketSeleccionado.FechaResolucion.HasValue)
+                        {
+                            <div class="col-md-6">
+                                <label class="small fw-semibold text-muted d-block">Fecha resolución</label>
+                                <span>@ticketSeleccionado.FechaResolucion.Value.ToString("dd/MM/yyyy HH:mm:ss")</span>
+                            </div>
+                        }
+                        @if (ticketSeleccionado.Sanitizado && !string.IsNullOrEmpty(ticketSeleccionado.SugerenciaIA))
+                        {
+                            <div class="col-12">
+                                <div class="p-3 rounded bg-info bg-opacity-10 border border-info border-opacity-25">
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <i class="bi bi-robot text-info"></i>
+                                        <span class="fw-semibold text-info">Sugerencia de IA</span>
+                                    </div>
+                                    <p class="mb-0 small">@ticketSeleccionado.SugerenciaIA</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button class="btn btn-secondary" @onclick="CerrarDetalle">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private Usuario? currentUser;
+    private List<Ticket>? tickets;
+    private Ticket? ticketSeleccionado;
+
+    private string filtroEstado = "";
+    private string filtroPrioridad = "";
+    private string filtroBusqueda = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await AuthService.GetCurrentUserAsync();
+        tickets = await TicketService.GetTicketsAsync();
+    }
+
+    private IEnumerable<Ticket> TicketsFiltrados
+    {
+        get
+        {
+            if (tickets == null) return Enumerable.Empty<Ticket>();
+
+            var filtrados = tickets.AsEnumerable();
+
+            if (!string.IsNullOrEmpty(filtroEstado))
+            {
+                if (Enum.TryParse<EstadoTicket>(filtroEstado, out var estado))
+                    filtrados = filtrados.Where(t => t.Estado == estado);
+            }
+
+            if (!string.IsNullOrEmpty(filtroPrioridad))
+            {
+                if (Enum.TryParse<NivelPrioridad>(filtroPrioridad, out var prioridad))
+                    filtrados = filtrados.Where(t => t.Prioridad == prioridad);
+            }
+
+            if (!string.IsNullOrEmpty(filtroBusqueda))
+            {
+                filtrados = filtrados.Where(t =>
+                    t.Titulo.Contains(filtroBusqueda, StringComparison.OrdinalIgnoreCase) ||
+                    t.Descripcion.Contains(filtroBusqueda, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return filtrados;
+        }
+    }
+
+    private void LimpiarFiltros()
+    {
+        filtroEstado = "";
+        filtroPrioridad = "";
+        filtroBusqueda = "";
+    }
+
+    private void VerDetalle(Ticket ticket) => ticketSeleccionado = ticket;
+    private void CerrarDetalle() => ticketSeleccionado = null;
+
+    private bool EsAdmin() =>
+        currentUser != null && (currentUser.Rol == Rol.SuperAdmin || currentUser.Rol == Rol.Admin);
+
+    private bool EsOperador() =>
+        currentUser != null && currentUser.Rol == Rol.Operador;
+
+    private string GetPageTitle()
+    {
+        if (currentUser == null) return "Tickets";
+        return currentUser.Rol switch
+        {
+            Rol.Operador => "Mis Tickets Asignados",
+            _ => "Gestión de Tickets"
+        };
+    }
+
+    private string GetPageSubtitle()
+    {
+        if (currentUser == null) return "";
+        return currentUser.Rol switch
+        {
+            Rol.Operador => "Tickets de tu área de responsabilidad.",
+            _ => "Todos los tickets del inquilino con filtros avanzados."
+        };
+    }
+
+    private string GetBadgeClass(EstadoTicket estado)
+    {
+        return estado switch
+        {
+            EstadoTicket.Nuevo => "badge-nuevo",
+            EstadoTicket.AnalizadoPorIA => "badge-analizado",
+            EstadoTicket.EnProgreso => "badge-en-progreso",
+            EstadoTicket.Resuelto => "badge-resuelto",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetPrioridadBadgeClass(NivelPrioridad prioridad)
+    {
+        return prioridad switch
+        {
+            NivelPrioridad.Critica => "bg-danger",
+            NivelPrioridad.Alta => "bg-warning text-dark",
+            NivelPrioridad.Media => "bg-info",
+            NivelPrioridad.Baja => "bg-secondary",
+            _ => "bg-secondary"
+        };
+    }
+}

@@ -1,0 +1,289 @@
+@page "/usuarios"
+@using PIGI_PT_WebApp.Models
+@using PIGI_PT_WebApp.Services
+@inject IAuthService AuthService
+@inject IUsuarioService UsuarioService
+@using System.Linq
+
+<PageTitle>Usuarios - PIGI-PT</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0 text-dark">Gestión de Usuarios</h2>
+        <p class="text-muted mb-0">Administra los usuarios de tu organización.</p>
+    </div>
+    <button class="btn btn-premium d-flex align-items-center gap-2" @onclick="MostrarFormCreacion">
+        <i class="bi bi-person-plus"></i> Nuevo Usuario
+    </button>
+</div>
+
+@* ── Filtros ── *@
+<div class="glass-card p-3 mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Rol</label>
+            <select class="form-select" @bind="filtroRol">
+                <option value="">Todos</option>
+                <option value="SuperAdmin">SuperAdmin</option>
+                <option value="Admin">Admin</option>
+                <option value="Operador">Operador</option>
+                <option value="UsuarioGeneral">Usuario General</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Estado</label>
+            <select class="form-select" @bind="filtroActivo">
+                <option value="">Todos</option>
+                <option value="true">Activos</option>
+                <option value="false">Inactivos</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label small fw-semibold text-muted">Buscar</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" placeholder="Buscar por nombre o email..." @bind="filtroBusqueda" @bind:event="oninput" />
+            </div>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-outline-secondary w-100" @onclick="LimpiarFiltros">
+                <i class="bi bi-x-lg me-1"></i>Limpiar
+            </button>
+        </div>
+    </div>
+</div>
+
+@* ── Tabla de Usuarios ── *@
+<div class="glass-card p-0 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">Nombre</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th class="pe-4">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var usuario in UsuariosFiltrados)
+                {
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px; font-size: 0.8rem; font-weight: 600;">
+                                    @(usuario.Nombre.Length >= 2 ? usuario.Nombre.Substring(0, 2).ToUpper() : usuario.Nombre.ToUpper())
+                                </div>
+                                <span class="fw-medium">@usuario.Nombre</span>
+                            </div>
+                        </td>
+                        <td><span class="text-muted">@usuario.Email</span></td>
+                        <td>
+                            <span class="badge @GetRolBadgeClass(usuario.Rol)">@usuario.Rol.ToString()</span>
+                        </td>
+                        <td>
+                            <span class="badge @(usuario.IsActive ? "bg-success bg-opacity-10 text-success" : "bg-danger bg-opacity-10 text-danger")">
+                                @(usuario.IsActive ? "Activo" : "Inactivo")
+                            </span>
+                        </td>
+                        <td class="pe-4">
+                            <div class="d-flex gap-1">
+                                @if (usuario.IsActive)
+                                {
+                                    <button class="btn btn-sm btn-outline-warning" title="Desactivar" @onclick="() => DesactivarUsuario(usuario)">
+                                        <i class="bi bi-pause-circle"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-outline-success" title="Reactivar" @onclick="() => ReactivarUsuario(usuario)">
+                                        <i class="bi bi-play-circle"></i>
+                                    </button>
+                                }
+                                <button class="btn btn-sm btn-outline-primary" title="Cambiar rol">
+                                    <i class="bi bi-shield-check"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center">
+        <small class="text-muted">Mostrando @UsuariosFiltrados.Count() de @usuarios.Count usuarios</small>
+    </div>
+</div>
+
+@* ── Modal de Creación ── *@
+@if (mostrarFormCreacion)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Nuevo Usuario</h5>
+                    <button type="button" class="btn-close" @onclick="CerrarFormCreacion"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nombre Completo</label>
+                        <input type="text" class="form-control" @bind="nuevoNombre" placeholder="Juan Pérez" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Email</label>
+                        <input type="email" class="form-control" @bind="nuevoEmail" placeholder="juan@empresa.com" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nombre de Usuario</label>
+                        <input type="text" class="form-control" @bind="nuevoUserName" placeholder="jperez" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Contraseña</label>
+                        <input type="password" class="form-control" @bind="nuevoPassword" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Rol</label>
+                        <select class="form-select" @bind="nuevoRol">
+                            <option value="4">Usuario General</option>
+                            <option value="3">Operador</option>
+                            <option value="2">Admin</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button class="btn btn-secondary" @onclick="CerrarFormCreacion">Cancelar</button>
+                    <button class="btn btn-premium" @onclick="CrearUsuario">Crear Usuario</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private Usuario? currentUser;
+    private List<UsuarioListItem> usuarios = new();
+    private bool mostrarFormCreacion = false;
+
+    // Filtros
+    private string filtroRol = "";
+    private string filtroActivo = "";
+    private string filtroBusqueda = "";
+
+    // Formulario de creación
+    private string nuevoNombre = "";
+    private string nuevoEmail = "";
+    private string nuevoUserName = "";
+    private string nuevoPassword = "";
+    private int nuevoRol = 4;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await AuthService.GetCurrentUserAsync();
+        await CargarUsuariosReal();
+    }
+
+    private async Task CargarUsuariosReal()
+    {
+        if (currentUser != null)
+        {
+            var list = await UsuarioService.GetUsuariosAsync(currentUser.InquilinoId);
+            usuarios = list.Select(u => new UsuarioListItem
+            {
+                Id = u.Id,
+                Nombre = u.Nombre,
+                Email = u.Email,
+                Rol = u.Rol,
+                IsActive = u.IsActive
+            }).ToList();
+        }
+    }
+
+    private IEnumerable<UsuarioListItem> UsuariosFiltrados
+    {
+        get
+        {
+            var filtrados = usuarios.AsEnumerable();
+
+            if (!string.IsNullOrEmpty(filtroRol) && Enum.TryParse<Rol>(filtroRol, out var rol))
+                filtrados = filtrados.Where(u => u.Rol == rol);
+
+            if (!string.IsNullOrEmpty(filtroActivo) && bool.TryParse(filtroActivo, out var activo))
+                filtrados = filtrados.Where(u => u.IsActive == activo);
+
+            if (!string.IsNullOrEmpty(filtroBusqueda))
+                filtrados = filtrados.Where(u =>
+                    u.Nombre.Contains(filtroBusqueda, StringComparison.OrdinalIgnoreCase) ||
+                    u.Email.Contains(filtroBusqueda, StringComparison.OrdinalIgnoreCase));
+
+            return filtrados;
+        }
+    }
+
+    private void LimpiarFiltros() { filtroRol = ""; filtroActivo = ""; filtroBusqueda = ""; }
+    private void MostrarFormCreacion() => mostrarFormCreacion = true;
+    private void CerrarFormCreacion() { mostrarFormCreacion = false; LimpiarForm(); }
+
+    private async Task CrearUsuario()
+    {
+        if (!string.IsNullOrWhiteSpace(nuevoNombre) && !string.IsNullOrWhiteSpace(nuevoEmail) && currentUser != null)
+        {
+            var nuevo = new Usuario
+            {
+                Nombre = nuevoNombre,
+                Email = nuevoEmail,
+                InquilinoId = currentUser.InquilinoId,
+                Rol = (Rol)nuevoRol
+            };
+            await UsuarioService.CreateUsuarioAsync(nuevo, nuevoPassword);
+            await CargarUsuariosReal();
+            CerrarFormCreacion();
+        }
+    }
+
+    private async Task DesactivarUsuario(UsuarioListItem usuario)
+    {
+        if (currentUser != null)
+        {
+            await UsuarioService.DesactivarUsuarioAsync(usuario.Id, currentUser.Id);
+            await CargarUsuariosReal();
+        }
+    }
+
+    private async Task ReactivarUsuario(UsuarioListItem usuario)
+    {
+        if (currentUser != null)
+        {
+            await UsuarioService.ReactivarUsuarioAsync(usuario.Id, currentUser.Id);
+            await CargarUsuariosReal();
+        }
+    }
+
+    private void LimpiarForm()
+    {
+        nuevoNombre = ""; nuevoEmail = ""; nuevoUserName = ""; nuevoPassword = ""; nuevoRol = 4;
+    }
+
+    private string GetRolBadgeClass(Rol rol)
+    {
+        return rol switch
+        {
+            Rol.SuperAdmin => "bg-danger bg-opacity-10 text-danger",
+            Rol.Admin => "bg-primary bg-opacity-10 text-primary",
+            Rol.Operador => "bg-warning bg-opacity-10 text-warning",
+            Rol.UsuarioGeneral => "bg-secondary bg-opacity-10 text-secondary",
+            _ => "bg-secondary"
+        };
+    }
+
+    // Modelo local para la tabla
+    private class UsuarioListItem
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public string Nombre { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public Rol Rol { get; set; } = Rol.UsuarioGeneral;
+        public bool IsActive { get; set; } = true;
+    }
+}

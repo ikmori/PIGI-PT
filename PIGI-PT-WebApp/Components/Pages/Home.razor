@@ -3,21 +3,11 @@
 @using PIGI_PT_WebApp.Services
 @inject IDashboardService DashboardService
 @inject ITicketService TicketService
+@inject IAuthService AuthService
 
 <PageTitle>Dashboard - PIGI-PT</PageTitle>
 
-<!-- Header Action -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 class="fw-bold mb-0 text-dark">Resumen Operativo</h2>
-        <p class="text-muted mb-0">Bienvenido de nuevo, aquí está el estado actual del sistema.</p>
-    </div>
-    <a href="reporte/nuevo" class="btn btn-premium d-flex align-items-center gap-2">
-        <i class="bi bi-plus-lg"></i> Nuevo Incidente
-    </a>
-</div>
-
-@if (metrics == null || HighPriorityTickets == null)
+@if (currentUser == null || metrics == null)
 {
     <div class="text-center mt-5">
         <div class="spinner-border text-primary" role="status">
@@ -27,141 +17,32 @@
 }
 else
 {
-    <!-- KPI Cards -->
-    <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="glass-card p-4">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="text-muted mb-1 fw-medium">Tickets Activos</p>
-                        <h3 class="fw-bold mb-0">@metrics.ActiveTickets</h3>
-                    </div>
-                    <div class="p-2 rounded bg-primary bg-opacity-10 text-primary">
-                        <i class="bi bi-ticket-detailed fs-4"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="glass-card p-4">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="text-muted mb-1 fw-medium">Riesgos Críticos</p>
-                        <h3 class="fw-bold mb-0 text-danger">@metrics.CriticalRisks</h3>
-                    </div>
-                    <div class="p-2 rounded bg-danger bg-opacity-10 text-danger">
-                        <i class="bi bi-exclamation-triangle fs-4"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="glass-card p-4">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="text-muted mb-1 fw-medium">Precisión IA</p>
-                        <h3 class="fw-bold mb-0">@metrics.AiAccuracy%</h3>
-                    </div>
-                    <div class="p-2 rounded bg-info bg-opacity-10 text-info">
-                        <i class="bi bi-robot fs-4"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="glass-card p-4">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="text-muted mb-1 fw-medium">Tiempo Resolución</p>
-                        <h3 class="fw-bold mb-0">@metrics.ResolutionTimeHours h</h3>
-                    </div>
-                    <div class="p-2 rounded bg-success bg-opacity-10 text-success">
-                        <i class="bi bi-stopwatch fs-4"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    @switch (currentUser.Rol)
+    {
+        case Rol.SuperAdmin:
+        case Rol.Admin:
+            <AdminDashboard Metrics="metrics" HighPriorityTickets="HighPriorityTickets" />
+            break;
 
-    <!-- Main Content Area: Chart (Mock) & Recent Tickets -->
-    <div class="row g-4">
-        <div class="col-lg-7">
-            <div class="glass-card p-4 h-100">
-                <h5 class="fw-bold mb-4">Volumen de Incidentes vs IA</h5>
-                <div class="d-flex align-items-end justify-content-between h-75 px-3 pb-2" style="border-bottom: 2px solid #f1f5f9;">
-                    <!-- Simulated Bar Chart -->
-                    <div class="d-flex flex-column align-items-center gap-2" style="height: 100%;">
-                        <div class="bg-secondary rounded-top" style="width: 40px; height: 60%; transition: height 0.3s ease;"></div>
-                        <span class="small text-muted fw-medium">Lun</span>
-                    </div>
-                    <div class="d-flex flex-column align-items-center gap-2" style="height: 100%;">
-                        <div class="bg-secondary rounded-top" style="width: 40px; height: 80%;"></div>
-                        <span class="small text-muted fw-medium">Mar</span>
-                    </div>
-                    <div class="d-flex flex-column align-items-center gap-2" style="height: 100%;">
-                        <div class="bg-primary rounded-top" style="width: 40px; height: 40%;"></div>
-                        <span class="small text-muted fw-medium">Mié</span>
-                    </div>
-                    <div class="d-flex flex-column align-items-center gap-2" style="height: 100%;">
-                        <div class="bg-info rounded-top" style="width: 40px; height: 90%;"></div>
-                        <span class="small text-muted fw-medium">Jue</span>
-                    </div>
-                    <div class="d-flex flex-column align-items-center gap-2" style="height: 100%;">
-                        <div class="bg-success rounded-top" style="width: 40px; height: 50%;"></div>
-                        <span class="small text-muted fw-medium">Vie</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-5">
-            <div class="glass-card p-0 h-100 overflow-hidden">
-                <div class="p-4 border-bottom">
-                    <h5 class="fw-bold mb-0">Tickets de Alta Prioridad</h5>
-                </div>
-                <div class="list-group list-group-flush">
-                    @foreach (var ticket in HighPriorityTickets)
-                    {
-                        <div class="list-group-item p-4 border-bottom-0 border-top" style="transition: background-color 0.2s;">
-                            <div class="d-flex justify-content-between align-items-start mb-1">
-                                <h6 class="mb-0 fw-semibold">@ticket.Titulo</h6>
-                                <span class="badge badge-status @GetBadgeClass(ticket.Estado)">@ticket.Estado.ToString()</span>
-                            </div>
-                            <p class="text-muted small mb-2 text-truncate" style="max-width: 280px;">@ticket.Descripcion</p>
-                            <div class="d-flex align-items-center justify-content-between small">
-                                <span class="text-muted"><i class="bi bi-clock me-1"></i>Reciente</span>
-                                @if (ticket.Sanitizado)
-                                {
-                                    <span class="text-info"><i class="bi bi-robot me-1"></i>IA Analizado</span>
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
+        case Rol.Operador:
+            <OperadorDashboard Metrics="metrics" HighPriorityTickets="HighPriorityTickets" UserName="@currentUser.Nombre" />
+            break;
+
+        case Rol.UsuarioGeneral:
+            <UsuarioDashboard Metrics="metrics" HighPriorityTickets="HighPriorityTickets" UserName="@currentUser.Nombre" />
+            break;
+    }
 }
 
 @code {
+    private Usuario? currentUser;
     private DashboardMetrics? metrics;
     private List<Ticket>? HighPriorityTickets;
 
     protected override async Task OnInitializedAsync()
     {
+        currentUser = await AuthService.GetCurrentUserAsync();
         metrics = await DashboardService.GetMetricsAsync();
         HighPriorityTickets = await TicketService.GetHighPriorityTicketsAsync(3);
-    }
-
-    private string GetBadgeClass(EstadoTicket estado)
-    {
-        return estado switch
-        {
-            EstadoTicket.Nuevo => "badge-nuevo",
-            EstadoTicket.AnalizadoPorIA => "badge-analizado",
-            EstadoTicket.EnProgreso => "badge-en-progreso",
-            EstadoTicket.Resuelto => "badge-resuelto",
-            _ => "bg-secondary"
-        };
     }
 }

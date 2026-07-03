@@ -37,6 +37,7 @@ namespace PIGI_PT_WebApp.Models
         public string Email { get; set; } = string.Empty;
         public Rol Rol { get; set; } = Rol.UsuarioGeneral;
         public Guid InquilinoId { get; set; }
+        public bool IsActive { get; set; } = true;
     }
 
     public class Categoria
@@ -71,51 +72,18 @@ namespace PIGI_PT_WebApp.Models
         public bool Sanitizado { get; set; } = false;
         public string SugerenciaIA { get; set; } = string.Empty;
     }
-
-    // DATOS DE PRUEBA
-    public static class MockData
+    public class Riesgo
     {
-        public static List<Ticket> GetTickets()
-        {
-            return new List<Ticket>
-            {
-                new Ticket {
-                    Titulo = "Error de conexión VPN",
-                    Descripcion = "No puedo acceder a la VPN desde mi casa.",
-                    Estado = EstadoTicket.EnProgreso,
-                    Prioridad = NivelPrioridad.Alta,
-                    AsignadoANombre = "Carlos Operador",
-                    FechaCreacion = DateTime.Now.AddHours(-2),
-                    Sanitizado = true,
-                    SugerenciaIA = "Revisar logs del cliente VPN."
-                },
-                new Ticket {
-                    Titulo = "Restablecimiento de contraseña",
-                    Descripcion = "Olvidé mi contraseña del portal de nómina.",
-                    Estado = EstadoTicket.Nuevo,
-                    Prioridad = NivelPrioridad.Baja,
-                    FechaCreacion = DateTime.Now.AddMinutes(-30)
-                },
-                new Ticket {
-                    Titulo = "Caída del servidor de base de datos",
-                    Descripcion = "El servidor principal de BD en producción no responde.",
-                    Estado = EstadoTicket.Resuelto,
-                    Prioridad = NivelPrioridad.Critica,
-                    AsignadoANombre = "Admin Sistema",
-                    FechaCreacion = DateTime.Now.AddDays(-1),
-                    FechaResolucion = DateTime.Now.AddHours(-10),
-                    Sanitizado = true
-                },
-                new Ticket {
-                    Titulo = "Lentitud en la red",
-                    Descripcion = "La red del piso 4 está muy lenta.",
-                    Estado = EstadoTicket.AnalizadoPorIA,
-                    Prioridad = NivelPrioridad.Media,
-                    FechaCreacion = DateTime.Now.AddHours(-5),
-                    Sanitizado = true,
-                    SugerenciaIA = "Posible congestión de switch. Escalar a redes."
-                }
-            };
-        }
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid InquilinoId { get; set; }
+        public string ServicioAfectado { get; set; } = string.Empty;
+        public string Amenaza { get; set; } = string.Empty;
+        public string Impacto { get; set; } = string.Empty;
+        public int ImpactoValor { get; set; }
+        public string PlanMitigacion { get; set; } = string.Empty;
+        public DateTime UltimaRevision { get; set; }
+        public bool RequiereRevision { get; set; }
     }
+
+
 }
