@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using PIGI_PT_Application.Commands.RiesgoOperacional;
 using PIGI_PT_Application.DTOs.RiesgoOperacional;
 using PIGI_PT_Application.Queries.RiesgoOperacional;
@@ -11,6 +12,7 @@ namespace PIGI_PT_API.Controllers.V1
     /// Permite registrar amenazas, reevaluar impacto y consultar riesgos por inquilino.
     /// Solo accesible por Admin y SuperAdmin.
     /// </summary>
+    [Authorize(Roles = "Admin,SuperAdmin")]
     [ApiController]
     [Route("api/v1/[controller]")]
     [Produces("application/json")]

@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using PIGI_PT_Application.Commands.Ticket;
 using PIGI_PT_Application.DTOs.Ticket;
 using PIGI_PT_Application.Queries.Ticket;
@@ -10,6 +11,7 @@ namespace PIGI_PT_API.Controllers.V1
     /// Controller para la gestión de tickets de incidentes.
     /// Expone las operaciones CRUD y de ciclo de vida de tickets.
     /// </summary>
+    [Authorize]
     [ApiController]
     [Route("api/v1/[controller]")]
     [Produces("application/json")]

@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using PIGI_PT_Application.Commands.Inquilino;
 using PIGI_PT_Application.DTOs.Inquilino;
 using PIGI_PT_Application.Queries.Inquilino;
@@ -11,6 +12,7 @@ namespace PIGI_PT_API.Controllers.V1
     /// Un inquilino representa una organización/empresa dentro de la plataforma.
     /// Solo accesible por SuperAdmin (gestión global) y Admin (gestión propia).
     /// </summary>
+    [Authorize(Roles = "Admin,SuperAdmin")]
     [ApiController]
     [Route("api/v1/[controller]")]
     [Produces("application/json")]

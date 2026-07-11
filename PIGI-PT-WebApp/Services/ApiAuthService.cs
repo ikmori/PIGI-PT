@@ -14,6 +14,7 @@ namespace PIGI_PT_WebApp.Services
     {
         private readonly HttpClient _httpClient;
         private Usuario? _currentUser;
+        private string? _jwtToken;
 
         public ApiAuthService(HttpClient httpClient)
         {
@@ -60,6 +61,7 @@ namespace PIGI_PT_WebApp.Services
                             Rol = ParseRol(result.Rol),
                             InquilinoId = result.InquilinoId
                         };
+                        _jwtToken = result.Token;
                         return true;
                     }
                 }
@@ -75,7 +77,13 @@ namespace PIGI_PT_WebApp.Services
         public Task LogoutAsync()
         {
             _currentUser = null;
+            _jwtToken = null;
             return Task.CompletedTask;
+        }
+
+        public string? GetJwtToken()
+        {
+            return _jwtToken;
         }
 
         private Rol ParseRol(string rolName)
@@ -96,6 +104,7 @@ namespace PIGI_PT_WebApp.Services
             public string FullName { get; set; } = string.Empty;
             public string Email { get; set; } = string.Empty;
             public string Rol { get; set; } = string.Empty;
+            public string Token { get; set; } = string.Empty;
         }
     }
 }

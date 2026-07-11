@@ -3,6 +3,8 @@
 @using PIGI_PT_WebApp.Services
 @inject IAuthService AuthService
 @inject ICategoriaService CategoriaService
+@inject ITicketService TicketService
+@inject IUsuarioService UsuarioService
 @using System.Linq
 
 <PageTitle>Categorías - PIGI-PT</PageTitle>
@@ -102,13 +104,16 @@
         if (currentUser != null)
         {
             var list = await CategoriaService.GetCategoriasAsync(currentUser.InquilinoId);
+            var tickets = await TicketService.GetTicketsAsync();
+            var usuarios = await UsuarioService.GetUsuariosAsync(currentUser.InquilinoId);
+
             categorias = list.Select(c => new CategoriaListItem
             {
                 Id = c.Id,
                 Nombre = c.Nombre,
                 Descripcion = c.Descripcion,
-                TicketsCount = new Random().Next(1, 10), // Mocked counters for UI demo
-                OperadoresCount = new Random().Next(1, 3), // Mocked counters for UI demo
+                TicketsCount = tickets.Count(t => t.CategoriaId == c.Id && t.Estado != EstadoTicket.Resuelto && t.Estado != EstadoTicket.Cerrado),
+                OperadoresCount = usuarios.Count(u => u.Rol == Rol.Operador && u.CategoriasAsignadasIds.Contains(c.Id)),
                 IsActive = true
             }).ToList();
         }

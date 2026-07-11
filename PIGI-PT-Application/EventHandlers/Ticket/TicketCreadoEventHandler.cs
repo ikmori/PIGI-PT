@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
+using PIGI_PT_Application.Ports.Infrastructure;
 using PIGI_PT_Domain.Events.Ticket;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,20 +9,25 @@ namespace PIGI_PT_Application.EventHandlers.Ticket
 {
     public class TicketCreadoEventHandler : INotificationHandler<TicketCreadoEvent>
     {
+        private readonly IHangfireService _hangfireService;
         private readonly ILogger<TicketCreadoEventHandler> _logger;
 
-        public TicketCreadoEventHandler(ILogger<TicketCreadoEventHandler> logger)
+        public TicketCreadoEventHandler(IHangfireService hangfireService, ILogger<TicketCreadoEventHandler> logger)
         {
+            _hangfireService = hangfireService;
             _logger = logger;
         }
 
         public async Task Handle(TicketCreadoEvent notification, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Domain Event: Ticket Creado - ID: {TicketId}, Titulo: '{Titulo}', Creado por: {CreadorId}",
+            _logger.LogInformation("Domain Event: Ticket Creado - ID: {TicketId}, Titulo: '{Titulo}', Creado por: {CreadorId}. Encolando sanitización.",
                 notification.TicketId, notification.Titulo, notification.CreadorId);
 
-            // Simulación o preparación para servicios asíncronos futuros (ej. Hangfire/Sanitización)
+            // Encolar el job en segundo plano usando el puerto de Hangfire
+            _hangfireService.EnqueueSanitization(notification.TicketId, notification.DescripcionOriginal);
+
             await Task.CompletedTask;
         }
     }
 }
+

@@ -341,7 +341,8 @@ namespace PIGI_PT_WebApp.Services
                 Email = dto.Email,
                 InquilinoId = dto.InquilinoId,
                 IsActive = dto.IsActive,
-                Rol = (Rol)dto.RolValor
+                Rol = (Rol)dto.RolValor,
+                CategoriasAsignadasIds = dto.CategoriasAsignadasIds
             };
         }
         #endregion
@@ -531,6 +532,7 @@ namespace PIGI_PT_WebApp.Services
             public string Email { get; set; } = string.Empty;
             public int RolValor { get; set; }
             public bool IsActive { get; set; }
+            public List<Guid> CategoriasAsignadasIds { get; set; } = new();
         }
 
         private class CategoriaDto

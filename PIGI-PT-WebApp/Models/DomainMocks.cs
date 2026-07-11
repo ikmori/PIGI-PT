@@ -38,6 +38,7 @@ namespace PIGI_PT_WebApp.Models
         public Rol Rol { get; set; } = Rol.UsuarioGeneral;
         public Guid InquilinoId { get; set; }
         public bool IsActive { get; set; } = true;
+        public List<Guid> CategoriasAsignadasIds { get; set; } = new();
     }
 
     public class Categoria

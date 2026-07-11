@@ -4,6 +4,11 @@ using Microsoft.OpenApi;
 using FluentValidation;
 using PIGI_PT_Infraestructure.Persistence.DbContext;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Hangfire;
+using PIGI_PT_Infraestructure.BackgroundJobs.Maintenance;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +22,42 @@ builder.Services.AddMediatR(cfg =>
 // ── FluentValidation: registra todos los validadores de Application ───────────
 builder.Services.AddValidatorsFromAssembly(typeof(CreateTicketCommand).Assembly);
 
+// ── Autenticación y Autorización JWT ──────────────────────────────────────────
+var secretKey = builder.Configuration["JwtSettings:Secret"] ?? "ClaveSecretaSuperProtegidaDeDesarrollo1234567890!";
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey)),
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"] ?? "pigi-pt-api",
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["JwtSettings:Audience"] ?? "pigi-pt-app",
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+// ── Hangfire: Configurar Motor de Tareas en Segundo Plano ──────────────────────
+builder.Services.AddHangfire(config =>
+{
+    var connStr = builder.Configuration.GetConnectionString("DefaultConnection");
+    if (string.IsNullOrEmpty(connStr))
+    {
+        config.UseInMemoryStorage();
+    }
+    else
+    {
+        config.UseSqlServerStorage(connStr);
+    }
+});
+builder.Services.AddHangfireServer();
+
 // ── Controllers ───────────────────────────────────────────────────────────────
 builder.Services.AddControllers();
 
@@ -29,6 +70,21 @@ builder.Services.AddSwaggerGen(c =>
         Title = "PIGI-PT API",
         Version = "v1",
         Description = "Plataforma Inteligente de Gestión y Predicción de Incidentes Tecnológicos"
+    });
+
+    // Configuración de Seguridad para JWT en Swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Ingrese 'Bearer' seguido de un espacio y su token JWT."
+    });
+    c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = new List<string>()
     });
 });
 
@@ -54,6 +110,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+// ── Dashboard de Hangfire ────────────────────────────────────────────────────
+app.UseHangfireDashboard("/hangfire");
+
 app.MapControllers();
 
 // Health check básico
@@ -81,4 +144,11 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-app.Run();
+// Programar Tareas Recurrentes de Hangfire
+RecurringJob.AddOrUpdate<RiskReviewJob>(
+    "risk-review-90days",
+    job => job.ExecuteAsync(),
+    Cron.Daily
+);
+
+app.Run();

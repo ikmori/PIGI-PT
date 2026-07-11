@@ -6,8 +6,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Registrar HttpClient para comunicación con la API
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5003/") });
+// Registrar handler de autorización JWT en el ámbito de la sesión (Scoped)
+builder.Services.AddScoped<PIGI_PT_WebApp.Services.JwtAuthorizationHandler>();
+
+// Registrar HttpClient como Scoped inyectando el handler del mismo ámbito para evitar fugas de contexto (DI Scope issues)
+builder.Services.AddScoped(sp =>
+{
+    var handler = sp.GetRequiredService<PIGI_PT_WebApp.Services.JwtAuthorizationHandler>();
+    handler.InnerHandler = new HttpClientHandler();
+    return new HttpClient(handler) { BaseAddress = new Uri("http://localhost:5003/") };
+});
 
 // Registrar servicios de autenticación y servicios HTTP conectados a la API real
 builder.Services.AddScoped<PIGI_PT_WebApp.Services.IAuthService, PIGI_PT_WebApp.Services.ApiAuthService>();

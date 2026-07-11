@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PIGI_PT_Application.Ports.Infrastructure;
 using PIGI_PT_Application.Ports.Repositories;
+using PIGI_PT_Application.Ports.Services;
 using PIGI_PT_Infraestructure.Persistence.DbContext;
 using PIGI_PT_Infraestructure.Persistence.Repositories;
 
@@ -48,7 +49,16 @@ namespace PIGI_PT_Infraestructure.Configuration
             // ── Unit of Work ─────────────────────────────────────────────────────────
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+            // ── Servicios Externos y Adaptadores ─────────────────────────────────────
+            services.AddHttpClient();
+            services.AddScoped<IIAService, ExternalServices.AI.IAService>();
+            services.AddScoped<IEmailService, ExternalServices.Email.EmailService>();
+            services.AddScoped<INotificationService, ExternalServices.Notifications.NotificationService>();
+            services.AddScoped<IAuthenticationService, Auth.AuthenticationService>();
+            services.AddScoped<IHangfireService, BackgroundJobs.HangfireService>();
+
             return services;
         }
     }
 }
+

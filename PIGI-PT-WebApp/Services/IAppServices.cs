@@ -22,6 +22,7 @@ namespace PIGI_PT_WebApp.Services
         Task<int> GetUnreadNotificationsCountAsync();
         Task<bool> LoginAsync(string email, string password);
         Task LogoutAsync();
+        string? GetJwtToken();
     }
 
     public interface IUsuarioService

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using PIGI_PT_Application.Ports.Services;
 using PIGI_PT_Infraestructure.Persistence.DbContext;
 
 namespace PIGI_PT_API.Controllers.V1
@@ -19,11 +20,16 @@ namespace PIGI_PT_API.Controllers.V1
     public class AuthController : ControllerBase
     {
         private readonly PigiPtDbContext _context;
+        private readonly IAuthenticationService _authService;
         private readonly ILogger<AuthController> _logger;
 
-        public AuthController(PigiPtDbContext context, ILogger<AuthController> logger)
+        public AuthController(
+            PigiPtDbContext context, 
+            IAuthenticationService authService,
+            ILogger<AuthController> logger)
         {
             _context = context;
+            _authService = authService;
             _logger = logger;
         }
 
@@ -55,13 +61,17 @@ namespace PIGI_PT_API.Controllers.V1
 
             _logger.LogInformation("Autenticación exitosa. Usuario: {Email}, Inquilino: {InquilinoId}", user.Email, user.InquilinoId);
 
+            // Generar Token JWT Real
+            var token = await _authService.GenerateTokenAsync(user.Id, user.UserName, user.Rol.Nombre);
+
             return Ok(new LoginResponse
             {
                 UserId = user.Id,
                 InquilinoId = user.InquilinoId,
                 FullName = user.FullName,
                 Email = user.Email,
-                Rol = user.Rol.Nombre
+                Rol = user.Rol.Nombre,
+                Token = token
             });
         }
     }
@@ -89,5 +99,7 @@ namespace PIGI_PT_API.Controllers.V1
         public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Rol { get; set; } = string.Empty;
+        public string Token { get; set; } = string.Empty;
     }
 }
+

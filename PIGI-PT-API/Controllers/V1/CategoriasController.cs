@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using PIGI_PT_Application.Commands.Categoria;
 using PIGI_PT_Application.DTOs.Categoria;
 using PIGI_PT_Application.Queries.Categoria;
@@ -12,6 +13,7 @@ namespace PIGI_PT_API.Controllers.V1
     /// y se usan para clasificar tickets y asignar operadores por área.
     /// Solo accesible por Admin y SuperAdmin.
     /// </summary>
+    [Authorize(Roles = "Admin,SuperAdmin")]
     [ApiController]
     [Route("api/v1/[controller]")]
     [Produces("application/json")]
