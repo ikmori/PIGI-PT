@@ -37,7 +37,7 @@ Este documento detalla el progreso actual del proyecto en relación con el Roadm
 ## Fase 4: Inteligencia Artificial y Background Jobs - 50% COMPLETADO
 - [x] **Integración de IA (Gemini)**: Servicio nativo C# implementado (`GeminiAiService`) para clasificación automática de incidencias, reemplazando el requerimiento inicial de usar Python FastAPI.
 - [x] Enmascaramiento y sanitización obligatoria de datos antes de enviarse a la IA.
-- [ ] **Pendiente**: Integrar **Hangfire** para ejecutar procesos en segundo plano (e.g., re-verificación de riesgos, limpiezas).
+- [x] **Pendiente**: Integrar **Hangfire** para ejecutar procesos en segundo plano (e.g., re-verificación de riesgos, limpiezas).
 - [ ] **Pendiente**: Integración de notificaciones por Email (SendGrid / SMTP) tras la creación y asignación de tickets.
 
 ## Entorno y Despliegue - 10% COMPLETADO
