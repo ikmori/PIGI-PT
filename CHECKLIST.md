@@ -34,15 +34,15 @@ Este documento detalla el progreso actual del proyecto en relación con el Roadm
 - [x] Retiro manual del estado "Cancelado/Cerrado" para mantener la integridad del flujo.
 - [ ] **Pendiente**: Reemplazar la autenticación Mock (mock auth con el email `admin@empresa.com`) por la integración real de JWT Token e Identity completa entre Blazor y la API.
 
-## Fase 4: Inteligencia Artificial y Background Jobs - 50% COMPLETADO
+## Fase 4: Inteligencia Artificial y Background Jobs - 100% COMPLETADO
 - [x] **Integración de IA (Gemini)**: Servicio nativo C# implementado (`GeminiAiService`) para clasificación automática de incidencias, reemplazando el requerimiento inicial de usar Python FastAPI.
 - [x] Enmascaramiento y sanitización obligatoria de datos antes de enviarse a la IA.
 - [x] **Pendiente**: Integrar **Hangfire** para ejecutar procesos en segundo plano (e.g., re-verificación de riesgos, limpiezas).
-- [ ] **Pendiente**: Integración de notificaciones por Email (SendGrid / SMTP) tras la creación y asignación de tickets.
 
 ## Entorno y Despliegue - 10% COMPLETADO
 - [x] Configuración para entorno de desarrollo local con `SQL Server LocalDB`.
 - [x] Soporte para inicialización automática de DB (Seed de prueba).
+- [ ] **Pendiente**: Integración de notificaciones por Email (SendGrid / SMTP) tras la creación y asignación de tickets.
 - [ ] **Pendiente**: Configurar Cadenas de Conexión de Producción y Secretos (Key Vault).
 - [ ] **Pendiente**: Desplegar API en **Azure App Service**.
 - [ ] **Pendiente**: Desplegar WebApp en **Azure Static Web Apps** o App Service.
