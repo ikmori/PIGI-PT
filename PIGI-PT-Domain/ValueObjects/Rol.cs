@@ -11,16 +11,14 @@ namespace PIGI_PT_Domain.ValueObjects
     public class Rol : ValueObject
     {
         // Constantes para los valores
-        public const int SUPER_ADMIN_VALUE = 1;
-        public const int ADMIN_VALUE = 2;
-        public const int OPERADOR_VALUE = 3;
-        public const int USUARIO_GENERAL_VALUE = 4;
+        public const int ADMIN_VALUE = 1;
+        public const int DEPARTAMENTO_TECNOLOGIA_VALUE = 3;
+        public const int USUARIO_VALUE = 4;
 
         // Instancias predefinidas
-        public static readonly Rol SuperAdmin = new(SUPER_ADMIN_VALUE, "SuperAdmin");
         public static readonly Rol Admin = new(ADMIN_VALUE, "Admin");
-        public static readonly Rol Operador = new(OPERADOR_VALUE, "Operador");
-        public static readonly Rol UsuarioGeneral = new(USUARIO_GENERAL_VALUE, "Usuario General");
+        public static readonly Rol DepartamentoTecnologia = new(DEPARTAMENTO_TECNOLOGIA_VALUE, "Departamento de Tecnología");
+        public static readonly Rol Usuario = new(USUARIO_VALUE, "Usuario");
 
         /// <summary>
         /// Valor numérico del rol.
@@ -53,10 +51,9 @@ namespace PIGI_PT_Domain.ValueObjects
         {
             return valor switch
             {
-                SUPER_ADMIN_VALUE => SuperAdmin,
                 ADMIN_VALUE => Admin,
-                OPERADOR_VALUE => Operador,
-                USUARIO_GENERAL_VALUE => UsuarioGeneral,
+                DEPARTAMENTO_TECNOLOGIA_VALUE => DepartamentoTecnologia,
+                USUARIO_VALUE => Usuario,
                 _ => throw new ArgumentException($"El valor de rol '{valor}' no es válido.", nameof(valor))
             };
         }
@@ -71,10 +68,9 @@ namespace PIGI_PT_Domain.ValueObjects
 
             return nombre.ToLowerInvariant().Trim() switch
             {
-                "superadmin" or "super admin" => SuperAdmin,
-                "admin" => Admin,
-                "operador" => Operador,
-                "usuarioGeneral" or "usuario general" or "usuario" => UsuarioGeneral,
+                "admin" or "superadmin" or "super admin" => Admin, // Map legacy as well
+                "departamentotecnologia" or "departamento de tecnologia" or "departamento de tecnología" or "operador" => DepartamentoTecnologia,
+                "usuario" or "usuariogeneral" or "usuario general" => Usuario,
                 _ => throw new ArgumentException($"El rol '{nombre}' no es reconocido.", nameof(nombre))
             };
         }
@@ -100,7 +96,7 @@ namespace PIGI_PT_Domain.ValueObjects
         {
             return Valor switch
             {
-                SUPER_ADMIN_VALUE => new()
+                ADMIN_VALUE => new()
                 {
                     "VER_TICKETS",
                     "CREAR_TICKETS",
@@ -120,25 +116,7 @@ namespace PIGI_PT_Domain.ValueObjects
                     "EXPORTAR_DATOS"
                 },
 
-                ADMIN_VALUE => new()
-                {
-                    "VER_TICKETS",
-                    "CREAR_TICKETS",
-                    "CLASIFICAR_TICKETS",
-                    "ASIGNAR_OPERADOR",
-                    "RESOLVER_TICKETS",
-                    "VER_USUARIOS",
-                    "CREAR_USUARIOS",
-                    "EDITAR_USUARIOS",
-                    "CREAR_CATEGORIAS",
-                    "EDITAR_CATEGORIAS",
-                    "CREAR_RIESGOS",
-                    "EDITAR_RIESGOS",
-                    "CAMBIAR_CONFIGURACION_IA",
-                    "VER_REPORTES"
-                },
-
-                OPERADOR_VALUE => new()
+                DEPARTAMENTO_TECNOLOGIA_VALUE => new()
                 {
                     "VER_TICKETS",
                     "CREAR_TICKETS",
@@ -148,7 +126,7 @@ namespace PIGI_PT_Domain.ValueObjects
                     "VER_USUARIOS"
                 },
 
-                USUARIO_GENERAL_VALUE => new()
+                USUARIO_VALUE => new()
                 {
                     "VER_TICKETS_PROPIOS",
                     "CREAR_TICKETS"
@@ -162,35 +140,31 @@ namespace PIGI_PT_Domain.ValueObjects
         /// Verifica si el rol tiene acceso a administración.
         /// </summary>
         public bool EsAdministrador => 
-            Valor == SUPER_ADMIN_VALUE || 
             Valor == ADMIN_VALUE;
 
         /// <summary>
-        /// Verifica si el rol es SuperAdmin.
+        /// Verifica si el rol es Admin (anteriormente SuperAdmin).
         /// </summary>
-        public bool EsSuperAdmin => Valor == SUPER_ADMIN_VALUE;
+        public bool EsSuperAdmin => Valor == ADMIN_VALUE;
 
         /// <summary>
         /// Verifica si el rol puede clasificar tickets.
         /// </summary>
         public bool PuedeClasificarTickets => 
-            Valor == SUPER_ADMIN_VALUE || 
             Valor == ADMIN_VALUE || 
-            Valor == OPERADOR_VALUE;
+            Valor == DEPARTAMENTO_TECNOLOGIA_VALUE;
 
         /// <summary>
         /// Verifica si el rol puede ver todos los tickets.
         /// </summary>
         public bool PuedeVerTodosLosTickets => 
-            Valor == SUPER_ADMIN_VALUE || 
             Valor == ADMIN_VALUE || 
-            Valor == OPERADOR_VALUE;
+            Valor == DEPARTAMENTO_TECNOLOGIA_VALUE;
 
         /// <summary>
         /// Verifica si el rol puede crear usuarios.
         /// </summary>
         public bool PuedeCrearUsuarios => 
-            Valor == SUPER_ADMIN_VALUE || 
             Valor == ADMIN_VALUE;
 
         /// <summary>

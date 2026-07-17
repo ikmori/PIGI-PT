@@ -40,7 +40,7 @@ namespace PIGI_PT_Infraestructure.Persistence.DbContext
                 "admin@empresa.com",
                 "admin",
                 "password123",
-                Rol.SuperAdmin
+                Rol.Admin
             );
             
             var mariaUser = new Usuario(
@@ -58,7 +58,7 @@ namespace PIGI_PT_Infraestructure.Persistence.DbContext
                 "carlos@empresa.com",
                 "carlos",
                 "password123",
-                Rol.Operador
+                Rol.DepartamentoTecnologia
             );
             
             var anaUser = new Usuario(
@@ -67,7 +67,7 @@ namespace PIGI_PT_Infraestructure.Persistence.DbContext
                 "ana@empresa.com",
                 "ana",
                 "password123",
-                Rol.Operador
+                Rol.DepartamentoTecnologia
             );
             
             var pedroUser = new Usuario(
@@ -76,7 +76,7 @@ namespace PIGI_PT_Infraestructure.Persistence.DbContext
                 "pedro@empresa.com",
                 "pedro",
                 "password123",
-                Rol.UsuarioGeneral
+                Rol.Usuario
             );
 
             context.Usuarios.AddRange(adminUser, mariaUser, carlosUser, anaUser, pedroUser);
@@ -89,38 +89,14 @@ namespace PIGI_PT_Infraestructure.Persistence.DbContext
 
             context.Categorias.AddRange(catHardware, catSoftware, catRedes, catAccesos);
 
-            // Asignar categorías a los operadores para definir su área de responsabilidad
-            carlosUser.AsignarCategoria(catRedes.Id, adminUser.Id);
-            carlosUser.AsignarCategoria(catHardware.Id, adminUser.Id);
-            anaUser.AsignarCategoria(catSoftware.Id, adminUser.Id);
-            anaUser.AsignarCategoria(catAccesos.Id, adminUser.Id);
+            // Asignar categorías/departamentos a los operadores para definir su área de responsabilidad
+            carlosUser.AsignarDepartamento(catRedes.Id, adminUser.Id);
+            anaUser.AsignarDepartamento(catSoftware.Id, adminUser.Id);
 
             // Guardar usuarios y categorías
             await context.SaveChangesAsync();
 
-            // 4. Crear Tickets iniciales
-            // Ticket 1: En progreso, asignado a Carlos (Redes)
-            var ticket1 = new Ticket(inquilino.Id, "Error de conexión VPN", "No puedo acceder a la VPN desde mi casa.", pedroUser.Id);
-            ticket1.AplicarSanitizacion("No puedo acceder a la VPN desde mi casa.");
-            ticket1.ClasificarPorIA(NivelPrioridad.Alta, catRedes.Id);
-            ticket1.AsignarOperador(carlosUser.Id, adminUser.Id);
 
-            // Ticket 2: Nuevo (Pendiente de análisis) creado por Pedro
-            var ticket2 = new Ticket(inquilino.Id, "Restablecimiento de contraseña", "Olvidé mi contraseña del portal de nómina.", pedroUser.Id);
-
-            // Ticket 3: Resuelto por Ana (Software)
-            var ticket3 = new Ticket(inquilino.Id, "Caída del servidor de base de datos", "El servidor principal de BD en producción no responde.", pedroUser.Id);
-            ticket3.AplicarSanitizacion("El servidor principal de BD en producción no responde.");
-            ticket3.ClasificarPorIA(NivelPrioridad.Critica, catSoftware.Id);
-            ticket3.AsignarOperador(anaUser.Id, adminUser.Id);
-            ticket3.Resolver(anaUser.Id);
-
-            // Ticket 4: Analizado por IA (Hardware)
-            var ticket4 = new Ticket(inquilino.Id, "Lentitud en la red", "La red del piso 4 está muy lenta.", pedroUser.Id);
-            ticket4.AplicarSanitizacion("La red del piso 4 está muy lenta.");
-            ticket4.ClasificarPorIA(NivelPrioridad.Media, catRedes.Id);
-
-            context.Tickets.AddRange(ticket1, ticket2, ticket3, ticket4);
 
             // Guardar tickets finales
             await context.SaveChangesAsync();

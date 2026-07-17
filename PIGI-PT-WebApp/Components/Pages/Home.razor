@@ -4,6 +4,7 @@
 @inject IDashboardService DashboardService
 @inject ITicketService TicketService
 @inject IAuthService AuthService
+@inject NavigationManager NavManager
 
 <PageTitle>Dashboard - PIGI-PT</PageTitle>
 
@@ -17,21 +18,7 @@
 }
 else
 {
-    @switch (currentUser.Rol)
-    {
-        case Rol.SuperAdmin:
-        case Rol.Admin:
-            <AdminDashboard Metrics="metrics" HighPriorityTickets="HighPriorityTickets" />
-            break;
-
-        case Rol.Operador:
-            <OperadorDashboard Metrics="metrics" HighPriorityTickets="HighPriorityTickets" UserName="@currentUser.Nombre" />
-            break;
-
-        case Rol.UsuarioGeneral:
-            <UsuarioDashboard Metrics="metrics" HighPriorityTickets="HighPriorityTickets" UserName="@currentUser.Nombre" />
-            break;
-    }
+    <AdminDashboard Metrics="metrics" HighPriorityTickets="HighPriorityTickets" />
 }
 
 @code {
@@ -42,6 +29,20 @@ else
     protected override async Task OnInitializedAsync()
     {
         currentUser = await AuthService.GetCurrentUserAsync();
+        
+        if (currentUser != null && currentUser.Rol != Rol.Admin)
+        {
+            if (currentUser.Rol == Rol.DepartamentoTecnologia)
+            {
+                NavManager.NavigateTo("tickets");
+            }
+            else
+            {
+                NavManager.NavigateTo("tickets");
+            }
+            return;
+        }
+
         metrics = await DashboardService.GetMetricsAsync();
         HighPriorityTickets = await TicketService.GetHighPriorityTicketsAsync(3);
     }

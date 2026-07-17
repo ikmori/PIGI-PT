@@ -28,7 +28,7 @@ namespace PIGI_PT_Domain.ValueObjects
         public static readonly EstadoTicket PendienteDeAnalisis = 
             new(PENDIENTE_DE_ANALISIS_VALUE, "Pendiente de Análisis");
         public static readonly EstadoTicket Clasificado = 
-            new(CLASIFICADO_VALUE, "Clasificado");
+            new(CLASIFICADO_VALUE, "Enviado al Área");
         public static readonly EstadoTicket EnProgreso = 
             new(EN_PROGRESO_VALUE, "En Progreso");
         public static readonly EstadoTicket Resuelto = 
@@ -90,7 +90,7 @@ namespace PIGI_PT_Domain.ValueObjects
             return nombre.ToLowerInvariant().Trim() switch
             {
                 "pendientedeanalisis" or "pendiente de análisis" or "pendiente" => PendienteDeAnalisis,
-                "clasificado" => Clasificado,
+                "clasificado" or "enviadoalarea" or "enviado al área" or "enviado al area" => Clasificado,
                 "enprogreso" or "en progreso" => EnProgreso,
                 "resuelto" => Resuelto,
                 "cancelado" => Cancelado,
@@ -103,9 +103,9 @@ namespace PIGI_PT_Domain.ValueObjects
         /// Valida si es permitida una transición desde este estado a otro.
         /// 
         /// Transiciones permitidas:
-        /// PendienteDeAnalisis → Clasificado | Rechazado
-        /// Clasificado → EnProgreso | Rechazado
-        /// EnProgreso → Resuelto | Cancelado
+        /// PendienteDeAnalisis → Clasificado | Rechazado | Cancelado
+        /// Clasificado         → EnProgreso  | Rechazado | Cancelado
+        /// EnProgreso          → Resuelto    | Cancelado
         /// Resuelto → (terminal, sin transiciones)
         /// Cancelado → (terminal, sin transiciones)
         /// Rechazado → (terminal, sin transiciones)
@@ -126,18 +126,20 @@ namespace PIGI_PT_Domain.ValueObjects
             {
                 // Desde PendienteDeAnalisis
                 (PENDIENTE_DE_ANALISIS_VALUE, CLASIFICADO_VALUE) => true,
-                (PENDIENTE_DE_ANALISIS_VALUE, RECHAZADO_VALUE) => true,
+                (PENDIENTE_DE_ANALISIS_VALUE, RECHAZADO_VALUE)   => true,
+                (PENDIENTE_DE_ANALISIS_VALUE, CANCELADO_VALUE)   => true,  // usuario puede cancelar antes de que la IA procese
 
                 // Desde Clasificado
                 (CLASIFICADO_VALUE, EN_PROGRESO_VALUE) => true,
-                (CLASIFICADO_VALUE, RECHAZADO_VALUE) => true,
+                (CLASIFICADO_VALUE, RECHAZADO_VALUE)   => true,
+                (CLASIFICADO_VALUE, CANCELADO_VALUE)   => true,  // usuario puede cancelar antes de que se asigne operador
 
                 // Desde EnProgreso
-                (EN_PROGRESO_VALUE, RESUELTO_VALUE) => true,
+                (EN_PROGRESO_VALUE, RESUELTO_VALUE)  => true,
                 (EN_PROGRESO_VALUE, CANCELADO_VALUE) => true,
 
                 // Estados terminales no permiten transiciones
-                (RESUELTO_VALUE, _) => false,
+                (RESUELTO_VALUE,  _) => false,
                 (CANCELADO_VALUE, _) => false,
                 (RECHAZADO_VALUE, _) => false,
 

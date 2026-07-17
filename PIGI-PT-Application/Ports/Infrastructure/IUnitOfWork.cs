@@ -25,11 +25,6 @@ namespace PIGI_PT_Application.Ports.Infrastructure
         IUsuarioRepository Usuarios { get; }
 
         /// <summary>
-        /// Repositorio específico para la persistencia del agregado <see cref="PIGI_PT_Domain.Aggregates.RiesgoOperacional.RiesgoOperacional"/>.
-        /// </summary>
-        IRiesgoOperacionalRepository RiesgosOperacionales { get; }
-
-        /// <summary>
         /// Repositorio específico para la persistencia del agregado <see cref="PIGI_PT_Domain.Aggregates.Categoria.Categoria"/>.
         /// </summary>
         ICategoriaRepository Categorias { get; }

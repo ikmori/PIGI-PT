@@ -13,7 +13,7 @@ namespace PIGI_PT_API.Controllers.V1
     /// y se usan para clasificar tickets y asignar operadores por área.
     /// Solo accesible por Admin y SuperAdmin.
     /// </summary>
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/v1/[controller]")]
     [Produces("application/json")]

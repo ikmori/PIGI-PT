@@ -22,9 +22,8 @@ namespace PIGI_PT_Application.Commands.Usuario
                 CreatedAt = usuario.CreatedAt,
                 ModifiedBy = usuario.ModifiedBy,
                 ModifiedAt = usuario.ModifiedAt,
-                CategoriasAsignadasIds = usuario.CategoriasAsignadasIds.ToList()
+                DepartamentoId = usuario.DepartamentoId
             };
         }
     }
 }
-

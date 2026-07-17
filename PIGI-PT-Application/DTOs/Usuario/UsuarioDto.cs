@@ -22,7 +22,7 @@ namespace PIGI_PT_Application.DTOs.Usuario
         /// <summary>
         /// Categorías asignadas al operador (vacío para otros roles).
         /// </summary>
-        public List<Guid> CategoriasAsignadasIds { get; set; } = new();
+        public Guid? DepartamentoId { get; set; }
     }
 }
 

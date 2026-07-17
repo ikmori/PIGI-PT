@@ -30,7 +30,7 @@ namespace PIGI_PT_WebApp.Services
             return Task.FromResult(_currentUser ?? new Usuario
             {
                 Nombre = "Invitado",
-                Rol = Rol.UsuarioGeneral,
+                Rol = Rol.Usuario,
                 Email = ""
             });
         }
@@ -90,10 +90,9 @@ namespace PIGI_PT_WebApp.Services
         {
             return rolName switch
             {
-                "SuperAdmin" => Rol.SuperAdmin,
                 "Admin" => Rol.Admin,
-                "Operador" => Rol.Operador,
-                _ => Rol.UsuarioGeneral
+                "Departamento de Tecnología" or "DepartamentoTecnologia" or "Operador" => Rol.DepartamentoTecnologia,
+                _ => Rol.Usuario
             };
         }
 

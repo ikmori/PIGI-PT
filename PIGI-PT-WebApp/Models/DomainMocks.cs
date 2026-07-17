@@ -3,30 +3,31 @@ using System.Collections.Generic;
 
 namespace PIGI_PT_WebApp.Models
 {
-    // ENUMS ALINEADOS A LA FASE 1
+    // ENUMS ALINEADOS AL DOMINIO (PIGI-PT-Domain/ValueObjects)
     public enum EstadoTicket
     {
-        Nuevo = 1,
-        AnalizadoPorIA = 2,
-        EnProgreso = 3,
-        Resuelto = 4,
-        Cerrado = 5
+        Nuevo          = 1,   // PendienteDeAnalisis en el dominio
+        EnviadoAlArea  = 2,   // Clasificado en el dominio
+        EnProgreso     = 3,
+        Resuelto       = 4,
+        Cerrado        = 5,   // Cancelado en el dominio
+        Rechazado      = 6
     }
 
     public enum NivelPrioridad
     {
-        Baja = 1,
-        Media = 2,
-        Alta = 3,
-        Critica = 4
+        SinDefinir = 0,       // NoDefinida en el dominio
+        Baja       = 1,
+        Media      = 2,
+        Alta       = 3,
+        Critica    = 4
     }
 
     public enum Rol
     {
-        SuperAdmin = 1,
-        Admin = 2,
-        Operador = 3,
-        UsuarioGeneral = 4
+        Admin = 1,
+        DepartamentoTecnologia = 3,
+        Usuario = 4
     }
 
     // CLASES MOCK
@@ -35,10 +36,10 @@ namespace PIGI_PT_WebApp.Models
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Nombre { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public Rol Rol { get; set; } = Rol.UsuarioGeneral;
+        public Rol Rol { get; set; } = Rol.Usuario;
         public Guid InquilinoId { get; set; }
         public bool IsActive { get; set; } = true;
-        public List<Guid> CategoriasAsignadasIds { get; set; } = new();
+        public Guid? DepartamentoId { get; set; }
     }
 
     public class Categoria

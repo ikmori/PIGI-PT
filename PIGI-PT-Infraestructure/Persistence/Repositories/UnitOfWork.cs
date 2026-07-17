@@ -31,9 +31,6 @@ namespace PIGI_PT_Infraestructure.Persistence.Repositories
         public IUsuarioRepository Usuarios { get; }
 
         /// <inheritdoc/>
-        public IRiesgoOperacionalRepository RiesgosOperacionales { get; }
-
-        /// <inheritdoc/>
         public ICategoriaRepository Categorias { get; }
 
         /// <summary>
@@ -50,14 +47,12 @@ namespace PIGI_PT_Infraestructure.Persistence.Repositories
             ITicketRepository tickets,
             IInquilinoRepository inquilinos,
             IUsuarioRepository usuarios,
-            IRiesgoOperacionalRepository riesgosOperacionales,
             ICategoriaRepository categorias)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             Tickets = tickets ?? throw new ArgumentNullException(nameof(tickets));
             Inquilinos = inquilinos ?? throw new ArgumentNullException(nameof(inquilinos));
             Usuarios = usuarios ?? throw new ArgumentNullException(nameof(usuarios));
-            RiesgosOperacionales = riesgosOperacionales ?? throw new ArgumentNullException(nameof(riesgosOperacionales));
             Categorias = categorias ?? throw new ArgumentNullException(nameof(categorias));
         }
 

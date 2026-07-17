@@ -27,7 +27,7 @@ namespace PIGI_PT_Application.Queries.Ticket
         /// <summary>
         /// Filtro opcional por operador asignado.
         /// </summary>
-        public Guid? OperadorAsignadoId { get; set; }
+        public Guid? ResponsableTecnologiaId { get; set; }
 
         /// <summary>
         /// Filtro opcional por creador del ticket (para UsuarioGeneral: solo sus tickets).
@@ -49,7 +49,8 @@ namespace PIGI_PT_Application.Queries.Ticket
 
         public async Task<List<TicketDto>> Handle(GetTicketsQuery request, CancellationToken cancellationToken)
         {
-            var tickets = await _unitOfWork.Tickets.GetActiveByInquilinoAsync(request.InquilinoId);
+            var spec = new PIGI_PT_Domain.Specifications.Ticket.AllTicketsByInquilinoSpec(request.InquilinoId);
+            var tickets = await _unitOfWork.Tickets.GetBySpecificationAsync(spec);
 
             // Filtrar por estado si se proporcionó
             if (!string.IsNullOrWhiteSpace(request.Estado))
@@ -68,11 +69,11 @@ namespace PIGI_PT_Application.Queries.Ticket
                     .ToList();
             }
 
-            // Filtrar por operador asignado
-            if (request.OperadorAsignadoId.HasValue)
+            // Filtrar por responsable asignado
+            if (request.ResponsableTecnologiaId.HasValue)
             {
                 tickets = tickets
-                    .Where(t => t.OperadorAsignadoId == request.OperadorAsignadoId.Value)
+                    .Where(t => t.ResponsableTecnologiaId == request.ResponsableTecnologiaId.Value)
                     .ToList();
             }
 
@@ -84,7 +85,32 @@ namespace PIGI_PT_Application.Queries.Ticket
                     .ToList();
             }
 
-            return tickets.Select(TicketMapper.ToDto).ToList();
+            // Obtener todas las categorías y usuarios para mapear nombres
+            var categoriasSpec = new PIGI_PT_Domain.Specifications.Categoria.CategoriasByInquilinoSpec(request.InquilinoId);
+            var categorias = await _unitOfWork.Categorias.GetBySpecificationAsync(categoriasSpec);
+            var dictCategorias = categorias.ToDictionary(c => c.Id, c => c.NombreCategoria);
+
+            var usuariosSpec = new PIGI_PT_Domain.Specifications.Usuario.ActiveUsuariosByInquilinoSpec(request.InquilinoId);
+            var usuarios = await _unitOfWork.Usuarios.GetBySpecificationAsync(usuariosSpec);
+            var dictUsuarios = usuarios.ToDictionary(u => u.Id, u => u);
+
+            return tickets.Select(t => {
+                string? catNombre = null;
+                if (t.CategoriaId.HasValue && t.CategoriaId.Value != Guid.Empty && dictCategorias.TryGetValue(t.CategoriaId.Value, out var cn)) catNombre = cn;
+                
+                string? opNombre = null;
+                if (t.ResponsableTecnologiaId.HasValue && dictUsuarios.TryGetValue(t.ResponsableTecnologiaId.Value, out var op)) opNombre = op.FullName;
+
+                string? creadorNombre = null;
+                string? creadorEmail = null;
+                if (t.CreatedBy.HasValue && t.CreatedBy.Value != Guid.Empty && dictUsuarios.TryGetValue(t.CreatedBy.Value, out var cr)) 
+                {
+                    creadorNombre = cr.FullName;
+                    creadorEmail = cr.Email;
+                }
+
+                return TicketMapper.ToDto(t, catNombre, opNombre, creadorNombre, creadorEmail);
+            }).ToList();
         }
     }
 }

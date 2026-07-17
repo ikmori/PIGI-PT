@@ -16,14 +16,14 @@ namespace PIGI_PT_Domain.Aggregates.Usuario
     /// - Credenciales (contraseña hasheada)
     /// - Rol con permisos granulares
     /// - Estado activo/inactivo
-    /// - Categorías asignadas (para operadores: define su área de responsabilidad)
+    /// - Categorías asignadas (para departamentos de tecnología: define su área de responsabilidad)
     /// 
     /// Invariantes:
     /// - Nombre, email, nombre de usuario no pueden estar vacíos
     /// - El rol debe ser válido
     /// - La contraseña siempre está hasheada
     /// - Solo usuarios activos pueden realizar acciones
-    /// - Solo operadores pueden tener categorías asignadas
+    /// - Solo departamentos de tecnología pueden tener categorías asignadas
     /// </summary>
     public class Usuario : InquilinoEntity
     {
@@ -33,15 +33,11 @@ namespace PIGI_PT_Domain.Aggregates.Usuario
         public string Password { get; private set; }  // Siempre hasheada
         public Rol Rol { get; private set; }
 
-        private readonly List<Guid> _categoriasAsignadasIds = new();
-
         /// <summary>
-        /// IDs de las categorías asignadas a este operador.
-        /// Define el área de responsabilidad: un operador solo ve tickets
-        /// clasificados en estas categorías.
-        /// Solo aplica para usuarios con rol Operador.
+        /// ID del departamento/área al que pertenece este usuario.
+        /// Define el área de responsabilidad para los operadores tecnológicos.
         /// </summary>
-        public IReadOnlyList<Guid> CategoriasAsignadasIds => _categoriasAsignadasIds.AsReadOnly();
+        public Guid? DepartamentoId { get; private set; }
 
         private Usuario() : base()
         {
@@ -74,71 +70,58 @@ namespace PIGI_PT_Domain.Aggregates.Usuario
         }
 
         /// <summary>
-        /// Asigna una categoría al operador, definiendo su área de responsabilidad.
-        /// Solo usuarios con rol Operador pueden tener categorías asignadas.
+        /// Asigna un departamento (categoría o área) a este usuario.
+        /// Solo usuarios con rol DepartamentoTecnologia pueden tener departamento asignado (o puede depender del negocio).
         /// </summary>
-        /// <param name="categoriaId">ID de la categoría a asignar (requerido)</param>
+        /// <param name="departamentoId">ID del departamento a asignar</param>
         /// <param name="modificadorId">ID del administrador que realiza la asignación</param>
-        /// <exception cref="ArgumentException">Si categoriaId o modificadorId son vacíos</exception>
-        /// <exception cref="InvalidOperationException">Si el usuario no es operador</exception>
-        /// <exception cref="UsuarioInactivoException">Si el usuario está inactivo</exception>
-        public void AsignarCategoria(Guid categoriaId, Guid modificadorId)
+        public void AsignarDepartamento(Guid departamentoId, Guid modificadorId)
         {
-            if (categoriaId == Guid.Empty)
-                throw new ArgumentException("El identificador de la categoría es obligatorio.", nameof(categoriaId));
+            if (departamentoId == Guid.Empty)
+                throw new ArgumentException("El identificador del departamento es obligatorio.", nameof(departamentoId));
 
             if (modificadorId == Guid.Empty)
                 throw new ArgumentException("El identificador del modificador es obligatorio.", nameof(modificadorId));
 
             if (!IsActive)
-                throw new UsuarioInactivoException(Id, "No se puede asignar categoría a un usuario inactivo.");
+                throw new UsuarioInactivoException(Id, "No se puede asignar departamento a un usuario inactivo.");
 
-            if (!EsOperador())
-                throw new InvalidOperationException("Solo los operadores pueden tener categorías asignadas.");
+            if (!EsDepartamentoTecnologia() && !EsAdministrador())
+                throw new InvalidOperationException("Solo los departamentos de tecnología y administradores pueden tener departamentos asignados.");
 
-            if (_categoriasAsignadasIds.Contains(categoriaId))
-                return; // Ya está asignada, no duplicar
+            if (DepartamentoId == departamentoId)
+                return;
 
-            _categoriasAsignadasIds.Add(categoriaId);
+            DepartamentoId = departamentoId;
             ModifiedBy = modificadorId;
             ModifiedAt = DateTime.UtcNow;
         }
 
         /// <summary>
-        /// Desasigna una categoría del operador.
+        /// Desasigna el departamento del usuario.
         /// </summary>
-        /// <param name="categoriaId">ID de la categoría a desasignar</param>
-        /// <param name="modificadorId">ID del administrador que realiza la desasignación</param>
-        /// <exception cref="ArgumentException">Si categoriaId o modificadorId son vacíos</exception>
-        /// <exception cref="InvalidOperationException">Si la categoría no está asignada</exception>
-        public void DesasignarCategoria(Guid categoriaId, Guid modificadorId)
+        public void DesasignarDepartamento(Guid modificadorId)
         {
-            if (categoriaId == Guid.Empty)
-                throw new ArgumentException("El identificador de la categoría es obligatorio.", nameof(categoriaId));
-
             if (modificadorId == Guid.Empty)
                 throw new ArgumentException("El identificador del modificador es obligatorio.", nameof(modificadorId));
 
-            if (!_categoriasAsignadasIds.Contains(categoriaId))
-                throw new InvalidOperationException($"La categoría '{categoriaId}' no está asignada a este operador.");
-
-            _categoriasAsignadasIds.Remove(categoriaId);
+            DepartamentoId = null;
             ModifiedBy = modificadorId;
             ModifiedAt = DateTime.UtcNow;
         }
 
         /// <summary>
-        /// Verifica si el operador tiene asignada una categoría específica.
+        /// Verifica si el usuario tiene asignada una categoría/departamento específico.
         /// </summary>
         public bool TieneCategoriaAsignada(Guid categoriaId)
         {
-            return _categoriasAsignadasIds.Contains(categoriaId);
+            return DepartamentoId == categoriaId;
         }
 
         /// <summary>
-        /// Verifica si el usuario es operador.
+        /// Verifica si el usuario pertenece al departamento de tecnología.
         /// </summary>
-        public bool EsOperador() => Rol.Valor == Rol.OPERADOR_VALUE;
+        public bool EsDepartamentoTecnologia() => Rol.Valor == Rol.DEPARTAMENTO_TECNOLOGIA_VALUE;
 
         /// <summary>
         /// Actualiza la contraseña del usuario.
@@ -191,9 +174,9 @@ namespace PIGI_PT_Domain.Aggregates.Usuario
             var rolAnterior = Rol;
             Rol = nuevoRol;
 
-            // Si deja de ser operador, limpiar categorías asignadas
-            if (nuevoRol.Valor != Rol.OPERADOR_VALUE)
-                _categoriasAsignadasIds.Clear();
+            // Si deja de ser departamento de tecnología, limpiar departamento asignado
+            if (nuevoRol.Valor != Rol.DEPARTAMENTO_TECNOLOGIA_VALUE)
+                DepartamentoId = null;
 
             ModifiedBy = modificadorId;
             ModifiedAt = DateTime.UtcNow;

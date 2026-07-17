@@ -9,6 +9,10 @@ namespace PIGI_PT_WebApp.Services
         Task<List<Ticket>> GetTicketsAsync();
         Task<List<Ticket>> GetHighPriorityTicketsAsync(int count);
         Task<Ticket> CreateTicketAsync(Ticket ticket);
+        Task<Ticket?> GetTicketByIdAsync(Guid id);
+        Task<bool> CancelTicketAsync(Guid id);
+        Task<bool> ResolveTicketAsync(Guid id);
+        Task<bool> AssignResponsableAsync(Guid id, Guid responsableId);
     }
 
     public interface IDashboardService
@@ -56,5 +60,6 @@ namespace PIGI_PT_WebApp.Services
         public int CriticalRisks { get; set; }
         public double AiAccuracy { get; set; }
         public double ResolutionTimeHours { get; set; }
+        public List<int> WeeklyIncidentVolumes { get; set; } = new List<int> { 0, 0, 0, 0, 0 };
     }
 }

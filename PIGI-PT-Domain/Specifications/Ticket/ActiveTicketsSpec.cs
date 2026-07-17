@@ -14,7 +14,6 @@ namespace PIGI_PT_Domain.Specifications.Ticket
         public ActiveTicketsSpec(Guid inquilinoId)
         {
             Criteria = t => t.InquilinoId == inquilinoId
-                         && t.Estado != EstadoTicket.Resuelto
                          && t.Estado != EstadoTicket.Cancelado
                          && t.Estado != EstadoTicket.Rechazado;
 

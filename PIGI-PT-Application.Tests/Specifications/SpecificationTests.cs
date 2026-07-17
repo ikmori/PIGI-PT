@@ -24,7 +24,7 @@ namespace PIGI_PT_Application.Tests.Specifications
             
             var ticketResuelto = new Ticket(inquilinoId, "Ticket Resuelto", "Descripcion 3", Guid.NewGuid());
             ticketResuelto.ClasificarPorIA(NivelPrioridad.Media, Guid.NewGuid());
-            ticketResuelto.AsignarOperador(Guid.NewGuid(), Guid.NewGuid());
+            ticketResuelto.AsignarResponsable(Guid.NewGuid(), Guid.NewGuid());
             ticketResuelto.Resolver(Guid.NewGuid()); // Cambia estado a Resuelto
 
             var list = new List<Ticket> { ticketActivo1, ticketActivo2, ticketResuelto };
@@ -76,8 +76,8 @@ namespace PIGI_PT_Application.Tests.Specifications
             // Arrange
             var inquilino1Id = Guid.NewGuid();
             var inquilino2Id = Guid.NewGuid();
-            var userInquilino1 = new Usuario(inquilino1Id, "User 1", "user1@test.com", "user1", "hashpwd", Rol.UsuarioGeneral);
-            var userInquilino2 = new Usuario(inquilino2Id, "User 2", "user2@test.com", "user2", "hashpwd", Rol.Operador);
+            var userInquilino1 = new Usuario(inquilino1Id, "User 1", "u1@test.com", "u1", "pass", Rol.Usuario);
+            var userInquilino2 = new Usuario(inquilino2Id, "Op 1", "op1@test.com", "op1", "pass", Rol.DepartamentoTecnologia);
 
             var list = new List<Usuario> { userInquilino1, userInquilino2 };
             var spec = new UsuariosByInquilinoSpec(inquilino1Id);

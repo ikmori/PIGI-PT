@@ -1,4 +1,5 @@
 @page "/reporte/nuevo"
+@rendermode InteractiveServer
 @using PIGI_PT_WebApp.Models
 @using PIGI_PT_WebApp.Services
 @inject ITicketService TicketService
@@ -9,100 +10,263 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h2 class="fw-bold mb-0 text-dark">Registrar Nuevo Incidente</h2>
-        <p class="text-muted mb-0">Describe el problema detalladamente para que la IA pueda clasificarlo de forma efectiva.</p>
+        <p class="text-muted mb-0">Solo describe el problema; Gemini lo clasificará automáticamente.</p>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-lg-8">
-        <div class="glass-card p-5">
-            <EditForm Model="NewTicket" OnValidSubmit="CrearTicket" class="needs-validation">
+@if (procesando)
+{
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+            <div class="glass-card p-5">
                 <div class="mb-4">
-                    <label class="form-label fw-semibold text-dark">Título del Incidente</label>
-                    <input type="text" class="form-control form-control-lg bg-light" placeholder="Ej: No puedo acceder a mi correo electrónico" @bind="NewTicket.Titulo" required />
+                    <div class="spinner-ai mx-auto mb-3"></div>
+                    <h4 class="fw-bold text-primary mb-2">Gemini está analizando tu reporte...</h4>
+                    <p class="text-muted">La IA está determinando la categoría, prioridad y el operador más adecuado.</p>
                 </div>
-
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-dark">Categoría Sugerida</label>
-                        <select class="form-select form-select-lg bg-light text-muted">
-                            <option value="">Seleccione una categoría (Opcional)</option>
-                            <option value="1">Hardware</option>
-                            <option value="2">Software/Aplicaciones</option>
-                            <option value="3">Redes y Conectividad</option>
-                            <option value="4">Accesos y Contraseñas</option>
-                        </select>
+                <div class="d-flex flex-column gap-2 text-start bg-light rounded-3 p-4">
+                    <div class="d-flex align-items-center gap-2 step-done">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span class="small">Datos sanitizados y protegidos</span>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-dark">Prioridad Estimada</label>
-                        <select class="form-select form-select-lg bg-light text-muted">
-                            <option value="1">Baja (No urgente)</option>
-                            <option value="2">Media (Afecta mi trabajo)</option>
-                            <option value="3">Alta (Bloquea mi trabajo)</option>
-                        </select>
+                    <div class="d-flex align-items-center gap-2 @(paso >= 2 ? "step-done" : "step-pending")">
+                        <i class="bi @(paso >= 2 ? "bi-check-circle-fill text-success" : "bi-circle text-muted")"></i>
+                        <span class="small">Enviando a Gemini para análisis...</span>
                     </div>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-semibold text-dark">Descripción Detallada</label>
-                    <textarea class="form-control bg-light" rows="6" placeholder="Describe los pasos para reproducir el problema o lo que estabas haciendo cuando ocurrió..." @bind="NewTicket.Descripcion" required></textarea>
-                </div>
-
-                <!-- Info Card -->
-                <div class="p-4 bg-info bg-opacity-10 rounded-3 border border-info border-opacity-25 mb-4 d-flex gap-3">
-                    <i class="bi bi-robot fs-2 text-info"></i>
-                    <div>
-                        <h6 class="fw-semibold text-info mb-1">Sanitización y Clasificación Inteligente</h6>
-                        <p class="text-muted small mb-0">Al enviar, tu texto será anonimizado automáticamente para proteger datos sensibles (tarjetas, contraseñas, PII) antes de ser analizado por nuestro motor de IA para asignar el técnico correcto.</p>
+                    <div class="d-flex align-items-center gap-2 @(paso >= 3 ? "step-done" : "step-pending")">
+                        <i class="bi @(paso >= 3 ? "bi-check-circle-fill text-success" : "bi-circle text-muted")"></i>
+                        <span class="small">Clasificando categoría y prioridad...</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 @(paso >= 4 ? "step-done" : "step-pending")">
+                        <i class="bi @(paso >= 4 ? "bi-check-circle-fill text-success" : "bi-circle text-muted")"></i>
+                        <span class="small">Asignando operador responsable...</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 @(paso >= 5 ? "step-done" : "step-pending")">
+                        <i class="bi @(paso >= 5 ? "bi-check-circle-fill text-success" : "bi-circle text-muted")"></i>
+                        <span class="small">Enviando notificación al área...</span>
                     </div>
                 </div>
-
-                <div class="d-flex justify-content-end gap-3">
-                    <button type="button" class="btn btn-light px-4" @onclick="Cancelar">Cancelar</button>
-                    <button type="submit" class="btn btn-premium px-5 d-flex align-items-center gap-2">
-                        <i class="bi bi-send-fill"></i> Enviar Reporte
-                    </button>
-                </div>
-            </EditForm>
+            </div>
         </div>
     </div>
+}
+else if (completado)
+{
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+            <div class="glass-card p-5">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                <h4 class="fw-bold mt-3 mb-2">¡Reporte enviado con éxito!</h4>
+                <p class="text-muted mb-4">Gemini ha clasificado tu incidente automáticamente y ha notificado al operador responsable.</p>
 
-    <!-- Side Help Column -->
-    <div class="col-lg-4">
-        <div class="glass-card p-4 mb-4 bg-primary text-white" style="border:none;">
-            <h5 class="fw-bold mb-3"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Consejos para un buen reporte</h5>
-            <ul class="list-unstyled mb-0 d-flex flex-column gap-3">
-                <li class="d-flex gap-2">
-                    <i class="bi bi-check-circle-fill text-success"></i>
-                    <span class="small opacity-75">Incluye mensajes de error exactos si los hay.</span>
-                </li>
-                <li class="d-flex gap-2">
-                    <i class="bi bi-check-circle-fill text-success"></i>
-                    <span class="small opacity-75">Menciona desde cuándo ocurre el problema.</span>
-                </li>
-                <li class="d-flex gap-2">
-                    <i class="bi bi-check-circle-fill text-success"></i>
-                    <span class="small opacity-75">Indica si solo te pasa a ti o a otros compañeros.</span>
-                </li>
-            </ul>
+                @if (ticketCreado != null)
+                {
+                    <div class="bg-light rounded-3 p-4 text-start mb-4">
+                        <p class="fw-semibold mb-3 text-dark"><i class="bi bi-stars text-primary me-2"></i>Resumen del análisis de Gemini:</p>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">Prioridad asignada:</span>
+                            <span class="badge @GetPrioridadBadge(ticketCreado.Prioridad) fw-semibold">@ticketCreado.Prioridad</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">Estado:</span>
+                            <span class="badge bg-info fw-semibold">@ticketCreado.Estado</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted small">Área asignada:</span>
+                            <span class="small fw-semibold text-primary">
+                                @(string.IsNullOrEmpty(ticketCreado.Categoria?.Nombre) ? "Clasificando..." : ticketCreado.Categoria.Nombre)
+                            </span>
+                        </div>
+                    </div>
+                }
+                <div class="d-flex gap-3 justify-content-center mt-4">
+                    <a href="tickets" class="btn btn-premium px-4">Ver mis reportes</a>
+                    <button class="btn btn-outline-primary px-4" @onclick="NuevoReporte">Nuevo reporte</button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+}
+else
+{
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="glass-card p-5">
+                @if (!string.IsNullOrEmpty(mensajeError))
+                {
+                    <div class="alert alert-danger d-flex align-items-center gap-2 mb-4" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <span>@mensajeError</span>
+                    </div>
+                }
+                <EditForm Model="NewTicket" OnValidSubmit="CrearTicket">
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold text-dark">Título del Incidente <span class="text-danger">*</span></label>
+                        <input type="text" id="titulo-incidente" class="form-control form-control-lg bg-light"
+                               placeholder="Ej: No puedo acceder a mi correo electrónico"
+                               @bind="NewTicket.Titulo" required />
+                        <div class="form-text">Sé conciso pero descriptivo (ej: "VPN no conecta desde casa").</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold text-dark">Descripción Detallada <span class="text-danger">*</span></label>
+                        <textarea id="descripcion-incidente" class="form-control bg-light" rows="7"
+                                  placeholder="Describe los pasos para reproducir el problema, mensajes de error exactos, desde cuándo ocurre, si afecta a más personas..."
+                                  @bind="NewTicket.Descripcion" required></textarea>
+                        <div class="form-text">Entre más detallada la descripción, mejor será la clasificación de Gemini.</div>
+                    </div>
+
+                    <div class="p-4 bg-primary bg-opacity-10 rounded-3 border border-primary border-opacity-25 mb-5 d-flex gap-3 align-items-start">
+                        <i class="bi bi-stars fs-2 text-primary flex-shrink-0"></i>
+                        <div>
+                            <h6 class="fw-bold text-primary mb-1">Clasificación 100% automática por Gemini</h6>
+                            <p class="text-muted small mb-0">
+                                No necesitas seleccionar categoría ni prioridad. Gemini leerá tu descripción y determinará automáticamente
+                                la categoría, el nivel de urgencia y asignará al operador más capacitado para resolverlo.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-3">
+                        <button type="button" class="btn btn-light px-4" @onclick="Cancelar">Cancelar</button>
+                        <button type="submit" id="btn-enviar" class="btn btn-premium px-5 d-flex align-items-center gap-2">
+                            <i class="bi bi-send-fill"></i> Enviar y Analizar con Gemini
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="glass-card p-4 mb-4 bg-primary text-white" style="border:none;">
+                <h5 class="fw-bold mb-3"><i class="bi bi-robot text-warning me-2"></i>¿Cómo funciona Gemini?</h5>
+                <ul class="list-unstyled mb-0 d-flex flex-column gap-3">
+                    <li class="d-flex gap-2">
+                        <span class="badge bg-white text-primary fw-bold flex-shrink-0">1</span>
+                        <span class="small opacity-90">Tu descripción es analizada semánticamente por Gemini.</span>
+                    </li>
+                    <li class="d-flex gap-2">
+                        <span class="badge bg-white text-primary fw-bold flex-shrink-0">2</span>
+                        <span class="small opacity-90">La IA elige la categoría y prioridad correctas automáticamente.</span>
+                    </li>
+                    <li class="d-flex gap-2">
+                        <span class="badge bg-white text-primary fw-bold flex-shrink-0">3</span>
+                        <span class="small opacity-90">Se asigna al operador que cubre esa área de soporte.</span>
+                    </li>
+                    <li class="d-flex gap-2">
+                        <span class="badge bg-white text-primary fw-bold flex-shrink-0">4</span>
+                        <span class="small opacity-90">El operador recibe una notificación inmediata con todos los datos.</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="glass-card p-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Consejos para un buen reporte</h6>
+                <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
+                    <li class="d-flex gap-2 align-items-start">
+                        <i class="bi bi-check-circle-fill text-success flex-shrink-0 mt-1"></i>
+                        <span class="small text-muted">Incluye el mensaje de error exacto si aparece.</span>
+                    </li>
+                    <li class="d-flex gap-2 align-items-start">
+                        <i class="bi bi-check-circle-fill text-success flex-shrink-0 mt-1"></i>
+                        <span class="small text-muted">Menciona desde cuándo ocurre el problema.</span>
+                    </li>
+                    <li class="d-flex gap-2 align-items-start">
+                        <i class="bi bi-check-circle-fill text-success flex-shrink-0 mt-1"></i>
+                        <span class="small text-muted">Indica si afecta solo a ti o también a compañeros.</span>
+                    </li>
+                    <li class="d-flex gap-2 align-items-start">
+                        <i class="bi bi-check-circle-fill text-success flex-shrink-0 mt-1"></i>
+                        <span class="small text-muted">No incluyas contraseñas ni datos personales; el sistema los protege.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .spinner-ai {
+        width: 64px;
+        height: 64px;
+        border: 5px solid #e9ecef;
+        border-top-color: #0d6efd;
+        border-right-color: #6610f2;
+        border-radius: 50%;
+        animation: spin-ai 0.8s linear infinite;
+    }
+    @@keyframes spin-ai {
+        to { transform: rotate(360deg); }
+    }
+    .step-done { opacity: 1; transition: opacity 0.4s ease; }
+    .step-pending { opacity: 0.35; transition: opacity 0.4s ease; }
+</style>
 
 @code {
     private Ticket NewTicket = new Ticket();
+    private bool procesando = false;
+    private bool completado = false;
+    private int paso = 1;
+    private Ticket? ticketCreado = null;
+    private string mensajeError = string.Empty;
 
     private async Task CrearTicket()
     {
-        if (!string.IsNullOrWhiteSpace(NewTicket.Titulo) && !string.IsNullOrWhiteSpace(NewTicket.Descripcion))
+        if (string.IsNullOrWhiteSpace(NewTicket.Titulo) || string.IsNullOrWhiteSpace(NewTicket.Descripcion))
         {
-            await TicketService.CreateTicketAsync(NewTicket);
-            Navigation.NavigateTo("historial");
+            mensajeError = "El título y la descripción son obligatorios.";
+            return;
         }
+
+        mensajeError = string.Empty;
+        procesando = true;
+        paso = 1;
+        StateHasChanged();
+
+        await Task.Delay(600);
+        paso = 2; StateHasChanged();
+        await Task.Delay(600);
+        paso = 3; StateHasChanged();
+
+        try
+        {
+            var resultado = await TicketService.CreateTicketAsync(NewTicket);
+
+            paso = 4; StateHasChanged();
+            await Task.Delay(500);
+            paso = 5; StateHasChanged();
+            await Task.Delay(600);
+
+            ticketCreado = resultado;
+            procesando = false;
+            completado = true;
+        }
+        catch (Exception ex)
+        {
+            procesando = false;
+            mensajeError = $"Ocurrió un error al enviar el reporte: {ex.Message}";
+        }
+        StateHasChanged();
     }
 
-    private void Cancelar()
+    private void Cancelar() => Navigation.NavigateTo("");
+
+    private void NuevoReporte()
     {
-        Navigation.NavigateTo("");
+        NewTicket = new Ticket();
+        completado = false;
+        procesando = false;
+        paso = 1;
+        ticketCreado = null;
+        mensajeError = string.Empty;
     }
+
+    private string GetPrioridadBadge(NivelPrioridad prioridad) => prioridad switch
+    {
+        NivelPrioridad.Critica   => "bg-danger",
+        NivelPrioridad.Alta      => "bg-warning text-dark",
+        NivelPrioridad.Media     => "bg-info text-dark",
+        NivelPrioridad.Baja      => "bg-success",
+        NivelPrioridad.SinDefinir => "bg-secondary",
+        _                        => "bg-secondary"
+    };
 }

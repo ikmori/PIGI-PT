@@ -51,11 +51,22 @@ namespace PIGI_PT_Infraestructure.Persistence.Configurations
                 .IsRequired()
                 .HasColumnName("Prioridad");
 
-            // --- Foreign Keys (solo IDs, sin navegación explícita) ---
+            // --- Foreign Keys ---
 
-            builder.Property(t => t.CategoriaId);
-            builder.Property(t => t.OperadorAsignadoId);
-            builder.Property(t => t.InquilinoId).IsRequired();
+            builder.HasOne<PIGI_PT_Domain.Aggregates.Categoria.Categoria>()
+                .WithMany()
+                .HasForeignKey(t => t.CategoriaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne<PIGI_PT_Domain.Aggregates.Usuario.Usuario>()
+                .WithMany()
+                .HasForeignKey(t => t.ResponsableTecnologiaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne<PIGI_PT_Domain.Aggregates.Inquilino.Inquilino>()
+                .WithMany()
+                .HasForeignKey(t => t.InquilinoId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // --- Propiedades de fecha ---
 
@@ -78,8 +89,8 @@ namespace PIGI_PT_Infraestructure.Persistence.Configurations
             builder.HasIndex(t => t.Estado)
                 .HasDatabaseName("IX_Tickets_Estado");
 
-            builder.HasIndex(t => t.OperadorAsignadoId)
-                .HasDatabaseName("IX_Tickets_OperadorAsignadoId");
+            builder.HasIndex(t => t.ResponsableTecnologiaId)
+                .HasDatabaseName("IX_Tickets_ResponsableTecnologiaId");
 
             builder.HasIndex(t => t.CategoriaId)
                 .HasDatabaseName("IX_Tickets_CategoriaId");

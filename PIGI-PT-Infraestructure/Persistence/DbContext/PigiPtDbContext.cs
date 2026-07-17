@@ -2,11 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using PIGI_PT_Domain.Aggregates.Categoria;
 using PIGI_PT_Domain.Aggregates.Inquilino;
-using PIGI_PT_Domain.Aggregates.RiesgoOperacional;
+using MediatR;
 using PIGI_PT_Domain.Aggregates.Ticket;
 using PIGI_PT_Domain.Aggregates.Usuario;
 using PIGI_PT_Domain.Base;
-using MediatR;
 
 namespace PIGI_PT_Infraestructure.Persistence.DbContext
 {
@@ -36,19 +35,9 @@ namespace PIGI_PT_Infraestructure.Persistence.DbContext
         public DbSet<Usuario> Usuarios { get; set; } = null!;
 
         /// <summary>
-        /// Conjunto de datos para los riesgos operacionales.
-        /// </summary>
-        public DbSet<RiesgoOperacional> RiesgosOperacionales { get; set; } = null!;
-
-        /// <summary>
         /// Conjunto de datos para las categorías de tickets.
         /// </summary>
         public DbSet<Categoria> Categorias { get; set; } = null!;
-
-        /// <summary>
-        /// Conjunto de datos para el historial de auditoría de tickets.
-        /// </summary>
-        public DbSet<RegistroDeHistorial> RegistrosDeHistorial { get; set; } = null!;
 
         /// <summary>
         /// Constructor para inyección de dependencias con opciones y MediatR.

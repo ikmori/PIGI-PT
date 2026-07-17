@@ -20,11 +20,12 @@ namespace PIGI_PT_Application.EventHandlers.Ticket
 
         public async Task Handle(TicketCreadoEvent notification, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Domain Event: Ticket Creado - ID: {TicketId}, Titulo: '{Titulo}', Creado por: {CreadorId}. Encolando sanitización.",
+            _logger.LogInformation("Domain Event: Ticket Creado - ID: {TicketId}, Titulo: '{Titulo}', Creado por: {CreadorId}. Procesado síncronamente por Gemini AI.",
                 notification.TicketId, notification.Titulo, notification.CreadorId);
 
-            // Encolar el job en segundo plano usando el puerto de Hangfire
-            _hangfireService.EnqueueSanitization(notification.TicketId, notification.DescripcionOriginal);
+            // ANTES: Encolaba la sanitización en Hangfire que lanzaba otra IA simulada.
+            // AHORA: Todo se hace síncronamente con GeminiAiService en el CreateTicketCommandHandler.
+            // _hangfireService.EnqueueSanitization(notification.TicketId, notification.DescripcionOriginal);
 
             await Task.CompletedTask;
         }

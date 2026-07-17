@@ -12,8 +12,28 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
+using PIGI_PT_Application.Ports.Services;
+
 namespace PIGI_PT_Application.Tests.Tickets
 {
+    public class DummySanitizer : IDataSanitizerService
+    {
+        public string SanitizeText(string input) => input;
+    }
+
+    public class DummyAnalyzer : ITicketAnalyzerService
+    {
+        public Task<AiClassificationResult> AnalyzeTicketAsync(string titulo, string descripcionSanitizada, string categoriasDisponibles)
+            => Task.FromResult(new AiClassificationResult { CategoriaSugerida = Guid.NewGuid().ToString(), PrioridadSugerida = "Media", Justificacion = "Test" });
+    }
+
+    public class DummyNotificationService : INotificationService
+    {
+        public Task NotifyAreaAsync(string ticketId, string area, string message) => Task.CompletedTask;
+        public Task SendEmailAsync(string to, string subject, string body) => Task.CompletedTask;
+        public Task SendPushNotificationAsync(Guid userId, string message) => Task.CompletedTask;
+    }
+
     public class TicketCommandHandlerTests
     {
         private PigiPtDbContext CreateDbContext()
@@ -30,10 +50,9 @@ namespace PIGI_PT_Application.Tests.Tickets
             var ticketsRepo = new TicketRepository(context);
             var inquilinosRepo = new InquilinoRepository(context);
             var usuariosRepo = new UsuarioRepository(context);
-            var riesgosRepo = new RiesgoOperacionalRepository(context);
             var categoriasRepo = new CategoriaRepository(context);
 
-            return new UnitOfWork(context, ticketsRepo, inquilinosRepo, usuariosRepo, riesgosRepo, categoriasRepo);
+            return new UnitOfWork(context, ticketsRepo, inquilinosRepo, usuariosRepo, categoriasRepo);
         }
 
         [Fact]
@@ -42,7 +61,7 @@ namespace PIGI_PT_Application.Tests.Tickets
             // Arrange
             using var context = CreateDbContext();
             var unitOfWork = CreateUnitOfWork(context);
-            var handler = new CreateTicketCommandHandler(unitOfWork);
+            var handler = new CreateTicketCommandHandler(unitOfWork, new DummySanitizer(), new DummyAnalyzer(), new DummyNotificationService());
 
             var inquilinoId = Guid.NewGuid();
             var userId = Guid.NewGuid();
@@ -60,7 +79,7 @@ namespace PIGI_PT_Application.Tests.Tickets
             // Assert
             Assert.NotEqual(Guid.Empty, result.Id);
             Assert.Equal("Servidor caído", result.Titulo);
-            Assert.Equal("Pendiente de Análisis", result.Estado); // Estado por defecto en constructor de Ticket
+            Assert.Equal("Clasificado", result.Estado); // Estado por defecto en constructor de Ticket
             Assert.Equal(inquilinoId, result.InquilinoId);
  
             var dbTicket = await context.Tickets.FindAsync(result.Id);
@@ -83,7 +102,7 @@ namespace PIGI_PT_Application.Tests.Tickets
             ticket.ClasificarPorIA(NivelPrioridad.Media, Guid.NewGuid()); // Clasificado
             
             var operadorId = Guid.NewGuid();
-            ticket.AsignarOperador(operadorId, creatorId); // Asignado / EnProgreso
+            ticket.AsignarResponsable(operadorId, creatorId); // Asignado / EnProgreso
             
             await context.Tickets.AddAsync(ticket);
             await context.SaveChangesAsync();

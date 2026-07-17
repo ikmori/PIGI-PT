@@ -30,7 +30,10 @@ namespace PIGI_PT_Infraestructure.Persistence.Configurations
 
             // --- Multi-tenant ---
 
-            builder.Property(c => c.InquilinoId).IsRequired();
+            builder.HasOne<PIGI_PT_Domain.Aggregates.Inquilino.Inquilino>()
+                .WithMany()
+                .HasForeignKey(c => c.InquilinoId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // --- Auditoría (heredadas de BaseEntity) ---
 

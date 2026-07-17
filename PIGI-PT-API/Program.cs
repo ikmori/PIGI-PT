@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Hangfire;
-using PIGI_PT_Infraestructure.BackgroundJobs.Maintenance;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -144,11 +144,5 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Programar Tareas Recurrentes de Hangfire
-RecurringJob.AddOrUpdate<RiskReviewJob>(
-    "risk-review-90days",
-    job => job.ExecuteAsync(),
-    Cron.Daily
-);
-
-app.Run();
+// Programar Tareas Recurrentes de
+app.Run();

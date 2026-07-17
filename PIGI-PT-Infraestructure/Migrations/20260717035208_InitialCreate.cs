@@ -12,25 +12,6 @@ namespace PIGI_PT_Infraestructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Categorias",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    NombreCategoria = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    InquilinoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Categorias", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Inquilinos",
                 columns: table => new
                 {
@@ -51,14 +32,12 @@ namespace PIGI_PT_Infraestructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RegistrosDeHistorial",
+                name: "Categorias",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TicketId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TipoDeAccion = table.Column<int>(type: "int", nullable: false),
-                    ValoresAnteriores = table.Column<string>(type: "nvarchar(max)", maxLength: 5000, nullable: true),
-                    ValoresNuevos = table.Column<string>(type: "nvarchar(max)", maxLength: 5000, nullable: false),
+                    NombreCategoria = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -68,19 +47,26 @@ namespace PIGI_PT_Infraestructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RegistrosDeHistorial", x => x.Id);
+                    table.PrimaryKey("PK_Categorias", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Categorias_Inquilinos_InquilinoId",
+                        column: x => x.InquilinoId,
+                        principalTable: "Inquilinos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "RiesgosOperacionales",
+                name: "Usuarios",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ServicioAfectado = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    DescripcionAmenaza = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
-                    NivelDeImpacto = table.Column<int>(type: "int", nullable: false),
-                    PlanDeMitigacion = table.Column<string>(type: "nvarchar(max)", maxLength: 5000, nullable: false),
-                    FechaUltimaRevision = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Rol = table.Column<int>(type: "int", nullable: false),
+                    DepartamentoId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -90,7 +76,19 @@ namespace PIGI_PT_Infraestructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RiesgosOperacionales", x => x.Id);
+                    table.PrimaryKey("PK_Usuarios", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Usuarios_Categorias_DepartamentoId",
+                        column: x => x.DepartamentoId,
+                        principalTable: "Categorias",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Usuarios_Inquilinos_InquilinoId",
+                        column: x => x.InquilinoId,
+                        principalTable: "Inquilinos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -104,7 +102,7 @@ namespace PIGI_PT_Infraestructure.Migrations
                     Estado = table.Column<int>(type: "int", nullable: false),
                     Prioridad = table.Column<int>(type: "int", nullable: false),
                     CategoriaId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    OperadorAsignadoId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ResponsableTecnologiaId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     FechaResolucion = table.Column<DateTime>(type: "datetime2", nullable: true),
                     FechaAsignacion = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -117,28 +115,24 @@ namespace PIGI_PT_Infraestructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tickets", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Usuarios",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    Rol = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    InquilinoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Usuarios", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tickets_Categorias_CategoriaId",
+                        column: x => x.CategoriaId,
+                        principalTable: "Categorias",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Tickets_Inquilinos_InquilinoId",
+                        column: x => x.InquilinoId,
+                        principalTable: "Inquilinos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Tickets_Usuarios_ResponsableTecnologiaId",
+                        column: x => x.ResponsableTecnologiaId,
+                        principalTable: "Usuarios",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -164,36 +158,6 @@ namespace PIGI_PT_Infraestructure.Migrations
                 column: "NombreComercial");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RegistrosDeHistorial_InquilinoId",
-                table: "RegistrosDeHistorial",
-                column: "InquilinoId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RegistrosDeHistorial_TicketId",
-                table: "RegistrosDeHistorial",
-                column: "TicketId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RegistrosDeHistorial_TicketId_CreatedAt",
-                table: "RegistrosDeHistorial",
-                columns: new[] { "TicketId", "CreatedAt" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RiesgosOperacionales_FechaUltimaRevision",
-                table: "RiesgosOperacionales",
-                column: "FechaUltimaRevision");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RiesgosOperacionales_InquilinoId",
-                table: "RiesgosOperacionales",
-                column: "InquilinoId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RiesgosOperacionales_InquilinoId_NivelDeImpacto",
-                table: "RiesgosOperacionales",
-                columns: new[] { "InquilinoId", "NivelDeImpacto" });
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Tickets_CategoriaId",
                 table: "Tickets",
                 column: "CategoriaId");
@@ -209,9 +173,14 @@ namespace PIGI_PT_Infraestructure.Migrations
                 columns: new[] { "InquilinoId", "CreatedAt" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tickets_OperadorAsignadoId",
+                name: "IX_Tickets_ResponsableTecnologiaId",
                 table: "Tickets",
-                column: "OperadorAsignadoId");
+                column: "ResponsableTecnologiaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Usuarios_DepartamentoId",
+                table: "Usuarios",
+                column: "DepartamentoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Usuarios_InquilinoId",
@@ -235,22 +204,16 @@ namespace PIGI_PT_Infraestructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Categorias");
-
-            migrationBuilder.DropTable(
-                name: "Inquilinos");
-
-            migrationBuilder.DropTable(
-                name: "RegistrosDeHistorial");
-
-            migrationBuilder.DropTable(
-                name: "RiesgosOperacionales");
-
-            migrationBuilder.DropTable(
                 name: "Tickets");
 
             migrationBuilder.DropTable(
                 name: "Usuarios");
+
+            migrationBuilder.DropTable(
+                name: "Categorias");
+
+            migrationBuilder.DropTable(
+                name: "Inquilinos");
         }
     }
 }

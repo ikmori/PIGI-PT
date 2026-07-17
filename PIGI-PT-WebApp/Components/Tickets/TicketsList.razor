@@ -12,7 +12,7 @@
         <p class="text-muted mb-0">@GetPageSubtitle()</p>
     </div>
     <a href="reporte/nuevo" class="btn btn-premium d-flex align-items-center gap-2">
-        <i class="bi bi-plus-lg"></i> Nuevo Incidente
+        <i class="bi bi-plus-lg"></i> Nuevo Reporte
     </a>
 </div>
 
@@ -23,11 +23,9 @@
             <label class="form-label small fw-semibold text-muted">Estado</label>
             <select class="form-select" @bind="filtroEstado">
                 <option value="">Todos</option>
-                <option value="Nuevo">Nuevo</option>
-                <option value="AnalizadoPorIA">Analizado por IA</option>
+                <option value="EnviadoAlArea">Enviado al Área</option>
                 <option value="EnProgreso">En Progreso</option>
                 <option value="Resuelto">Resuelto</option>
-                <option value="Cerrado">Cerrado</option>
             </select>
         </div>
         <div class="col-md-3">
@@ -77,70 +75,70 @@ else
     <div class="glass-card p-0 overflow-hidden">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+                <thead class="bg-light text-muted small fw-semibold text-uppercase">
                     <tr>
-                        <th class="ps-4">Código</th>
-                        <th>Título</th>
-                        <th>Estado</th>
-                        <th>Prioridad</th>
-                        <th>Asignado a</th>
-                        <th>Fecha</th>
-                        <th class="pe-4">Acciones</th>
+                        <th class="px-4 py-3 border-bottom-0">Código</th>
+                        <th class="py-3 border-bottom-0">Incidente</th>
+                        <th class="py-3 border-bottom-0">Estado</th>
+                        <th class="py-3 border-bottom-0">Prioridad</th>
+                        <th class="py-3 border-bottom-0">Área asignada</th>
+                        <th class="py-3 border-bottom-0">Fecha</th>
+                        <th class="px-4 py-3 border-bottom-0 text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var ticket in TicketsFiltrados)
                     {
                         <tr>
-                            <td class="ps-4">
-                                <span class="fw-semibold text-primary">@ticket.Codigo</span>
-                            </td>
-                            <td>
-                                <div>
-                                    <span class="fw-medium">@ticket.Titulo</span>
+                            <td class="px-4 py-3 text-primary fw-medium">@ticket.Codigo</td>
+                            <td class="py-3">
+                                <div class="fw-semibold text-dark">
+                                    @ticket.Titulo
                                     @if (ticket.Sanitizado)
                                     {
                                         <i class="bi bi-robot text-info ms-1" title="Analizado por IA"></i>
                                     }
                                 </div>
-                                <small class="text-muted text-truncate d-block" style="max-width: 300px;">@ticket.Descripcion</small>
+                                <div class="text-muted small text-truncate" style="max-width: 260px;">@ticket.Descripcion</div>
                             </td>
-                            <td>
-                                <span class="badge badge-status @GetBadgeClass(ticket.Estado)">@ticket.Estado.ToString()</span>
+                            <td class="py-3">
+                                <span class="badge badge-status @GetBadgeClass(ticket.Estado)">@GetEstadoNombre(ticket.Estado)</span>
                             </td>
-                            <td>
-                                <span class="badge @GetPrioridadBadgeClass(ticket.Prioridad)">@ticket.Prioridad.ToString()</span>
+                            <td class="py-3">
+                                <span class="fw-medium @GetPriorityColor(ticket.Prioridad)">
+                                    <i class="bi @GetPriorityIcon(ticket.Prioridad) me-1"></i> @ticket.Prioridad.ToString()
+                                </span>
                             </td>
-                            <td>
-                                @if (!string.IsNullOrEmpty(ticket.AsignadoANombre))
+                            <td class="py-3 text-muted">
+                                @if (ticket.Categoria != null && !string.IsNullOrEmpty(ticket.Categoria.Nombre))
                                 {
-                                    <span class="d-flex align-items-center gap-1">
-                                        <i class="bi bi-person-circle text-primary"></i>
-                                        @ticket.AsignadoANombre
-                                    </span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center fw-bold" style="width:26px; height:26px; font-size: 0.7rem;">
+                                            @ticket.Categoria.Nombre[0]
+                                        </div>
+                                        @ticket.Categoria.Nombre
+                                    </div>
                                 }
                                 else
                                 {
-                                    <span class="text-muted">—</span>
+                                    <span class="text-muted fst-italic small">Clasificando...</span>
                                 }
                             </td>
-                            <td>
-                                <small class="text-muted">@ticket.FechaCreacion.ToString("dd/MM HH:mm")</small>
-                            </td>
-                            <td class="pe-4">
-                                <div class="d-flex gap-1">
+                            <td class="py-3 text-muted small">@ticket.FechaCreacion.ToString("dd MMM yyyy, HH:mm")</td>
+                            <td class="px-4 py-3 text-end" @onclick:stopPropagation="true">
+                                <div class="d-flex gap-2 justify-content-end">
                                     <button class="btn btn-sm btn-outline-primary" title="Ver detalle" @onclick="() => VerDetalle(ticket)">
                                         <i class="bi bi-eye"></i>
                                     </button>
-                                    @if (EsAdmin() && ticket.Estado == EstadoTicket.AnalizadoPorIA)
+                                    @if ((EsAdmin() || EsOperador()) && ticket.Estado == EstadoTicket.EnviadoAlArea)
                                     {
-                                        <button class="btn btn-sm btn-outline-success" title="Asignar operador">
-                                            <i class="bi bi-person-plus"></i>
+                                        <button class="btn btn-sm btn-outline-success" title="Tomar ticket" @onclick="() => AsignarTicket(ticket)">
+                                            <i class="bi bi-person-check-fill"></i>
                                         </button>
                                     }
                                     @if ((EsAdmin() || EsOperador()) && ticket.Estado == EstadoTicket.EnProgreso)
                                     {
-                                        <button class="btn btn-sm btn-outline-info" title="Resolver">
+                                        <button class="btn btn-sm btn-outline-info" title="Resolver" @onclick="() => ConfirmarResolucion(ticket)">
                                             <i class="bi bi-check-lg"></i>
                                         </button>
                                     }
@@ -171,11 +169,13 @@ else
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="small fw-semibold text-muted d-block">Estado</label>
-                            <span class="badge badge-status @GetBadgeClass(ticketSeleccionado.Estado) fs-6">@ticketSeleccionado.Estado.ToString()</span>
+                            <span class="badge badge-status @GetBadgeClass(ticketSeleccionado.Estado) fs-6">@GetEstadoNombre(ticketSeleccionado.Estado)</span>
                         </div>
                         <div class="col-md-6">
                             <label class="small fw-semibold text-muted d-block">Prioridad</label>
-                            <span class="badge @GetPrioridadBadgeClass(ticketSeleccionado.Prioridad) fs-6">@ticketSeleccionado.Prioridad.ToString()</span>
+                            <span class="fw-semibold @GetPriorityColor(ticketSeleccionado.Prioridad) fs-6">
+                                <i class="bi @GetPriorityIcon(ticketSeleccionado.Prioridad) me-1"></i>@ticketSeleccionado.Prioridad.ToString()
+                            </span>
                         </div>
                         <div class="col-12">
                             <label class="small fw-semibold text-muted d-block">Descripción</label>
@@ -186,14 +186,14 @@ else
                             <span><i class="bi bi-person me-1"></i>@ticketSeleccionado.CreadorNombre</span>
                         </div>
                         <div class="col-md-6">
-                            <label class="small fw-semibold text-muted d-block">Asignado a</label>
-                            @if (!string.IsNullOrEmpty(ticketSeleccionado.AsignadoANombre))
+                            <label class="small fw-semibold text-muted d-block">Área asignada</label>
+                            @if (ticketSeleccionado.Categoria != null && !string.IsNullOrEmpty(ticketSeleccionado.Categoria.Nombre))
                             {
-                                <span><i class="bi bi-person-badge me-1"></i>@ticketSeleccionado.AsignadoANombre</span>
+                                <span><i class="bi bi-diagram-3 me-1"></i>@ticketSeleccionado.Categoria.Nombre</span>
                             }
                             else
                             {
-                                <span class="text-muted">Sin asignar</span>
+                                <span class="text-muted fst-italic small">Clasificando...</span>
                             }
                         </div>
                         <div class="col-md-6">
@@ -229,10 +229,48 @@ else
     </div>
 }
 
+@* ── Modal de Confirmación Resolución ── *@
+@if (ticketAResolver != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-body text-center pt-4 pb-4">
+                    <i class="bi bi-check-circle text-success fs-1 mb-3 d-block"></i>
+                    <h5 class="fw-bold mb-3">¿Resolver Ticket?</h5>
+                    <p class="text-muted small mb-4">Estás a punto de marcar el ticket <strong>@ticketAResolver.Codigo</strong> como resuelto.</p>
+                    @if (!string.IsNullOrEmpty(errorResolucion))
+                    {
+                        <div class="alert alert-danger small py-2 mb-3">@errorResolucion</div>
+                    }
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button class="btn btn-light" @onclick="CerrarConfirmacionResolucion" disabled="@resolviendo">Cancelar</button>
+                        <button class="btn btn-success" @onclick="EjecutarResolucion" disabled="@resolviendo">
+                            @if (resolviendo)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            }
+                            Confirmar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+
 @code {
     private Usuario? currentUser;
     private List<Ticket>? tickets;
     private Ticket? ticketSeleccionado;
+
+    private Ticket? ticketAResolver;
+    private bool resolviendo = false;
+    private string errorResolucion = string.Empty;
+
+
 
     private string filtroEstado = "";
     private string filtroPrioridad = "";
@@ -285,18 +323,63 @@ else
     private void VerDetalle(Ticket ticket) => ticketSeleccionado = ticket;
     private void CerrarDetalle() => ticketSeleccionado = null;
 
-    private bool EsAdmin() =>
-        currentUser != null && (currentUser.Rol == Rol.SuperAdmin || currentUser.Rol == Rol.Admin);
+    private void ConfirmarResolucion(Ticket ticket)
+    {
+        ticketAResolver = ticket;
+        errorResolucion = string.Empty;
+    }
+    
+    private void CerrarConfirmacionResolucion()
+    {
+        ticketAResolver = null;
+        errorResolucion = string.Empty;
+        resolviendo = false;
+    }
 
-    private bool EsOperador() =>
-        currentUser != null && currentUser.Rol == Rol.Operador;
+    private async Task EjecutarResolucion()
+    {
+        if (ticketAResolver == null) return;
+        resolviendo = true;
+        errorResolucion = string.Empty;
+
+        var ok = await TicketService.ResolveTicketAsync(ticketAResolver.Id);
+        if (ok)
+        {
+            ticketAResolver.Estado = EstadoTicket.Resuelto;
+            ticketAResolver.FechaResolucion = DateTime.UtcNow;
+            CerrarConfirmacionResolucion();
+        }
+        else
+        {
+            errorResolucion = "No se pudo resolver el ticket.";
+            resolviendo = false;
+        }
+    }
+
+
+
+    private async Task AsignarTicket(Ticket ticket)
+    {
+        if (currentUser == null) return;
+        var ok = await TicketService.AssignResponsableAsync(ticket.Id, currentUser.Id);
+        if (ok)
+        {
+            ticket.Estado = EstadoTicket.EnProgreso;
+            ticket.AsignadoAId = currentUser.Id;
+            ticket.AsignadoANombre = currentUser.Nombre;
+        }
+    }
+
+    private bool EsAdmin() => currentUser != null && currentUser.Rol == Rol.Admin;
+
+    private bool EsOperador() => currentUser != null && currentUser.Rol == Rol.DepartamentoTecnologia;
 
     private string GetPageTitle()
     {
         if (currentUser == null) return "Tickets";
         return currentUser.Rol switch
         {
-            Rol.Operador => "Mis Tickets Asignados",
+            Rol.Usuario => "Mis Reportes",
             _ => "Gestión de Tickets"
         };
     }
@@ -306,7 +389,7 @@ else
         if (currentUser == null) return "";
         return currentUser.Rol switch
         {
-            Rol.Operador => "Tickets de tu área de responsabilidad.",
+            Rol.Usuario => "Historial de incidentes que has reportado.",
             _ => "Todos los tickets del inquilino con filtros avanzados."
         };
     }
@@ -316,22 +399,42 @@ else
         return estado switch
         {
             EstadoTicket.Nuevo => "badge-nuevo",
-            EstadoTicket.AnalizadoPorIA => "badge-analizado",
+            EstadoTicket.EnviadoAlArea => "badge-analizado",
             EstadoTicket.EnProgreso => "badge-en-progreso",
             EstadoTicket.Resuelto => "badge-resuelto",
             _ => "bg-secondary"
         };
     }
 
-    private string GetPrioridadBadgeClass(NivelPrioridad prioridad)
+    private string GetEstadoNombre(EstadoTicket estado)
     {
-        return prioridad switch
+        return estado switch
         {
-            NivelPrioridad.Critica => "bg-danger",
-            NivelPrioridad.Alta => "bg-warning text-dark",
-            NivelPrioridad.Media => "bg-info",
-            NivelPrioridad.Baja => "bg-secondary",
-            _ => "bg-secondary"
+            EstadoTicket.Nuevo => "Nuevo",
+            EstadoTicket.EnviadoAlArea => "Enviado al Área",
+            EstadoTicket.EnProgreso => "En Progreso",
+            EstadoTicket.Resuelto => "Resuelto",
+            EstadoTicket.Cerrado => "Cerrado",
+            EstadoTicket.Rechazado => "Rechazado",
+            _ => estado.ToString()
         };
     }
+
+    private string GetPriorityColor(NivelPrioridad p) => p switch
+    {
+        NivelPrioridad.Baja    => "text-success",
+        NivelPrioridad.Media   => "text-warning",
+        NivelPrioridad.Alta    => "text-danger",
+        NivelPrioridad.Critica => "text-danger fw-bold",
+        _                      => "text-muted"
+    };
+
+    private string GetPriorityIcon(NivelPrioridad p) => p switch
+    {
+        NivelPrioridad.Baja    => "bi-arrow-down-circle",
+        NivelPrioridad.Media   => "bi-dash-circle",
+        NivelPrioridad.Alta    => "bi-arrow-up-circle",
+        NivelPrioridad.Critica => "bi-exclamation-octagon",
+        _                      => "bi-circle"
+    };
 }

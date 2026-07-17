@@ -122,119 +122,6 @@ namespace PIGI_PT_Infraestructure.Migrations
                     b.ToTable("Inquilinos", (string)null);
                 });
 
-            modelBuilder.Entity("PIGI_PT_Domain.Aggregates.RiesgoOperacional.RiesgoOperacional", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("DescripcionAmenaza")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<DateTime>("FechaUltimaRevision")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("InquilinoId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("ModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("NivelDeImpacto")
-                        .HasColumnType("int")
-                        .HasColumnName("NivelDeImpacto");
-
-                    b.Property<string>("PlanDeMitigacion")
-                        .IsRequired()
-                        .HasMaxLength(5000)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ServicioAfectado")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FechaUltimaRevision")
-                        .HasDatabaseName("IX_RiesgosOperacionales_FechaUltimaRevision");
-
-                    b.HasIndex("InquilinoId")
-                        .HasDatabaseName("IX_RiesgosOperacionales_InquilinoId");
-
-                    b.HasIndex("InquilinoId", "NivelDeImpacto")
-                        .HasDatabaseName("IX_RiesgosOperacionales_InquilinoId_NivelDeImpacto");
-
-                    b.ToTable("RiesgosOperacionales", (string)null);
-                });
-
-            modelBuilder.Entity("PIGI_PT_Domain.Aggregates.Ticket.RegistroDeHistorial", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("InquilinoId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("ModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TicketId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("TipoDeAccion")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ValoresAnteriores")
-                        .HasMaxLength(5000)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ValoresNuevos")
-                        .IsRequired()
-                        .HasMaxLength(5000)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InquilinoId")
-                        .HasDatabaseName("IX_RegistrosDeHistorial_InquilinoId");
-
-                    b.HasIndex("TicketId")
-                        .HasDatabaseName("IX_RegistrosDeHistorial_TicketId");
-
-                    b.HasIndex("TicketId", "CreatedAt")
-                        .HasDatabaseName("IX_RegistrosDeHistorial_TicketId_CreatedAt");
-
-                    b.ToTable("RegistrosDeHistorial", (string)null);
-                });
-
             modelBuilder.Entity("PIGI_PT_Domain.Aggregates.Ticket.Ticket", b =>
                 {
                     b.Property<Guid>("Id")
@@ -281,12 +168,12 @@ namespace PIGI_PT_Infraestructure.Migrations
                     b.Property<Guid?>("ModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("OperadorAsignadoId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Prioridad")
                         .HasColumnType("int")
                         .HasColumnName("Prioridad");
+
+                    b.Property<Guid?>("ResponsableTecnologiaId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Titulo")
                         .IsRequired()
@@ -301,8 +188,8 @@ namespace PIGI_PT_Infraestructure.Migrations
                     b.HasIndex("Estado")
                         .HasDatabaseName("IX_Tickets_Estado");
 
-                    b.HasIndex("OperadorAsignadoId")
-                        .HasDatabaseName("IX_Tickets_OperadorAsignadoId");
+                    b.HasIndex("ResponsableTecnologiaId")
+                        .HasDatabaseName("IX_Tickets_ResponsableTecnologiaId");
 
                     b.HasIndex("InquilinoId", "CreatedAt")
                         .HasDatabaseName("IX_Tickets_InquilinoId_CreatedAt");
@@ -316,15 +203,13 @@ namespace PIGI_PT_Infraestructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.PrimitiveCollection<string>("CategoriasAsignadasIds")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("CategoriasAsignadasIds");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("DepartamentoId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
@@ -365,6 +250,8 @@ namespace PIGI_PT_Infraestructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DepartamentoId");
+
                     b.HasIndex("InquilinoId")
                         .HasDatabaseName("IX_Usuarios_InquilinoId");
 
@@ -377,6 +264,48 @@ namespace PIGI_PT_Infraestructure.Migrations
                         .HasDatabaseName("IX_Usuarios_InquilinoId_UserName");
 
                     b.ToTable("Usuarios", (string)null);
+                });
+
+            modelBuilder.Entity("PIGI_PT_Domain.Aggregates.Categoria.Categoria", b =>
+                {
+                    b.HasOne("PIGI_PT_Domain.Aggregates.Inquilino.Inquilino", null)
+                        .WithMany()
+                        .HasForeignKey("InquilinoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PIGI_PT_Domain.Aggregates.Ticket.Ticket", b =>
+                {
+                    b.HasOne("PIGI_PT_Domain.Aggregates.Categoria.Categoria", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("PIGI_PT_Domain.Aggregates.Inquilino.Inquilino", null)
+                        .WithMany()
+                        .HasForeignKey("InquilinoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PIGI_PT_Domain.Aggregates.Usuario.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("ResponsableTecnologiaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("PIGI_PT_Domain.Aggregates.Usuario.Usuario", b =>
+                {
+                    b.HasOne("PIGI_PT_Domain.Aggregates.Categoria.Categoria", null)
+                        .WithMany()
+                        .HasForeignKey("DepartamentoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("PIGI_PT_Domain.Aggregates.Inquilino.Inquilino", null)
+                        .WithMany()
+                        .HasForeignKey("InquilinoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

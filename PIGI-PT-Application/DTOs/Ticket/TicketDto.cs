@@ -17,8 +17,8 @@ namespace PIGI_PT_Application.DTOs.Ticket
         public int PrioridadValor { get; set; }
         public Guid? CategoriaId { get; set; }
         public string? NombreCategoria { get; set; }
-        public Guid? OperadorAsignadoId { get; set; }
-        public string? OperadorNombre { get; set; }
+        public Guid? ResponsableTecnologiaId { get; set; }
+        public string? ResponsableTecnologiaNombre { get; set; }
         public DateTime CreatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
 

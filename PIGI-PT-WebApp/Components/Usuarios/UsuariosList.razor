@@ -24,10 +24,9 @@
             <label class="form-label small fw-semibold text-muted">Rol</label>
             <select class="form-select" @bind="filtroRol">
                 <option value="">Todos</option>
-                <option value="SuperAdmin">SuperAdmin</option>
-                <option value="Admin">Admin</option>
-                <option value="Operador">Operador</option>
-                <option value="UsuarioGeneral">Usuario General</option>
+                <option value="Admin">Administrador</option>
+                <option value="DepartamentoTecnologia">Dept. Tecnología</option>
+                <option value="Usuario">Usuario</option>
             </select>
         </div>
         <div class="col-md-3">
@@ -101,7 +100,7 @@
                                         <i class="bi bi-play-circle"></i>
                                     </button>
                                 }
-                                <button class="btn btn-sm btn-outline-primary" title="Cambiar rol">
+                                <button class="btn btn-sm btn-outline-primary" title="Cambiar rol" @onclick="() => MostrarFormCambiarRol(usuario)">
                                     <i class="bi bi-shield-check"></i>
                                 </button>
                             </div>
@@ -127,6 +126,12 @@
                     <button type="button" class="btn-close" @onclick="CerrarFormCreacion"></button>
                 </div>
                 <div class="modal-body">
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @errorMessage
+                        </div>
+                    }
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Nombre Completo</label>
                         <input type="text" class="form-control" @bind="nuevoNombre" placeholder="Juan Pérez" />
@@ -146,15 +151,45 @@
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Rol</label>
                         <select class="form-select" @bind="nuevoRol">
-                            <option value="4">Usuario General</option>
-                            <option value="3">Operador</option>
-                            <option value="2">Admin</option>
+                            <option value="4">Usuario</option>
+                            <option value="3">Dept. Tecnología</option>
+                            <option value="1">Administrador</option>
                         </select>
                     </div>
                 </div>
                 <div class="modal-footer border-0">
                     <button class="btn btn-secondary" @onclick="CerrarFormCreacion">Cancelar</button>
                     <button class="btn btn-premium" @onclick="CrearUsuario">Crear Usuario</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@* ── Modal de Cambiar Rol ── *@
+@if (mostrarFormCambiarRol && usuarioSeleccionado != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Cambiar Rol</h5>
+                    <button type="button" class="btn-close" @onclick="CerrarFormCambiarRol"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Selecciona el nuevo rol para <strong>@usuarioSeleccionado.Nombre</strong>:</p>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nuevo Rol</label>
+                        <select class="form-select" @bind="nuevoRolSeleccionado">
+                            <option value="4">Usuario</option>
+                            <option value="3">Dept. Tecnología</option>
+                            <option value="1">Administrador</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button class="btn btn-secondary" @onclick="CerrarFormCambiarRol">Cancelar</button>
+                    <button class="btn btn-primary" @onclick="CambiarRolUsuario">Guardar Cambios</button>
                 </div>
             </div>
         </div>
@@ -177,6 +212,12 @@
     private string nuevoUserName = "";
     private string nuevoPassword = "";
     private int nuevoRol = 4;
+    private string errorMessage = "";
+    
+    // Formulario cambiar rol
+    private bool mostrarFormCambiarRol = false;
+    private UsuarioListItem? usuarioSeleccionado;
+    private int nuevoRolSeleccionado = 4;
 
     protected override async Task OnInitializedAsync()
     {
@@ -222,12 +263,20 @@
     }
 
     private void LimpiarFiltros() { filtroRol = ""; filtroActivo = ""; filtroBusqueda = ""; }
-    private void MostrarFormCreacion() => mostrarFormCreacion = true;
-    private void CerrarFormCreacion() { mostrarFormCreacion = false; LimpiarForm(); }
+    private void MostrarFormCreacion() { mostrarFormCreacion = true; errorMessage = ""; }
+    private void CerrarFormCreacion() { mostrarFormCreacion = false; LimpiarForm(); errorMessage = ""; }
 
     private async Task CrearUsuario()
     {
-        if (!string.IsNullOrWhiteSpace(nuevoNombre) && !string.IsNullOrWhiteSpace(nuevoEmail) && currentUser != null)
+        errorMessage = "";
+        
+        if (string.IsNullOrWhiteSpace(nuevoNombre) || string.IsNullOrWhiteSpace(nuevoEmail) || string.IsNullOrWhiteSpace(nuevoPassword))
+        {
+            errorMessage = "El nombre, email y contraseña son obligatorios.";
+            return;
+        }
+
+        if (currentUser != null)
         {
             var nuevo = new Usuario
             {
@@ -236,7 +285,12 @@
                 InquilinoId = currentUser.InquilinoId,
                 Rol = (Rol)nuevoRol
             };
-            await UsuarioService.CreateUsuarioAsync(nuevo, nuevoPassword);
+            var resultado = await UsuarioService.CreateUsuarioAsync(nuevo, nuevoPassword);
+            if (resultado.Id == Guid.Empty)
+            {
+                errorMessage = "Ocurrió un error al crear el usuario. Revisa que el email no esté duplicado.";
+                return;
+            }
             await CargarUsuariosReal();
             CerrarFormCreacion();
         }
@@ -260,6 +314,38 @@
         }
     }
 
+    private void MostrarFormCambiarRol(UsuarioListItem usuario)
+    {
+        usuarioSeleccionado = usuario;
+        
+        // Mapear el enum al int
+        nuevoRolSeleccionado = usuario.Rol switch
+        {
+            Rol.Admin => 1,
+            Rol.DepartamentoTecnologia => 3,
+            Rol.Usuario => 4,
+            _ => 4
+        };
+
+        mostrarFormCambiarRol = true;
+    }
+
+    private void CerrarFormCambiarRol()
+    {
+        mostrarFormCambiarRol = false;
+        usuarioSeleccionado = null;
+    }
+
+    private async Task CambiarRolUsuario()
+    {
+        if (currentUser != null && usuarioSeleccionado != null)
+        {
+            await UsuarioService.CambiarRolAsync(usuarioSeleccionado.Id, nuevoRolSeleccionado, currentUser.Id);
+            await CargarUsuariosReal();
+            CerrarFormCambiarRol();
+        }
+    }
+
     private void LimpiarForm()
     {
         nuevoNombre = ""; nuevoEmail = ""; nuevoUserName = ""; nuevoPassword = ""; nuevoRol = 4;
@@ -269,10 +355,9 @@
     {
         return rol switch
         {
-            Rol.SuperAdmin => "bg-danger bg-opacity-10 text-danger",
-            Rol.Admin => "bg-primary bg-opacity-10 text-primary",
-            Rol.Operador => "bg-warning bg-opacity-10 text-warning",
-            Rol.UsuarioGeneral => "bg-secondary bg-opacity-10 text-secondary",
+            Rol.Admin => "badge bg-danger",
+            Rol.DepartamentoTecnologia => "badge bg-info",
+            Rol.Usuario => "badge bg-secondary",
             _ => "bg-secondary"
         };
     }
@@ -283,7 +368,7 @@
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Nombre { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public Rol Rol { get; set; } = Rol.UsuarioGeneral;
+        public Rol Rol { get; set; } = Rol.Usuario;
         public bool IsActive { get; set; } = true;
     }
 }

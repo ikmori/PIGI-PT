@@ -43,7 +43,6 @@ namespace PIGI_PT_Infraestructure.Configuration
             services.AddScoped<ITicketRepository, TicketRepository>();
             services.AddScoped<IInquilinoRepository, InquilinoRepository>();
             services.AddScoped<IUsuarioRepository, UsuarioRepository>();
-            services.AddScoped<IRiesgoOperacionalRepository, RiesgoOperacionalRepository>();
             services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 
             // ── Unit of Work ─────────────────────────────────────────────────────────
@@ -52,6 +51,8 @@ namespace PIGI_PT_Infraestructure.Configuration
             // ── Servicios Externos y Adaptadores ─────────────────────────────────────
             services.AddHttpClient();
             services.AddScoped<IIAService, ExternalServices.AI.IAService>();
+            services.AddScoped<ITicketAnalyzerService, ExternalServices.AI.GeminiAiService>();
+            services.AddScoped<IDataSanitizerService, ExternalServices.Sanitization.DataSanitizerService>();
             services.AddScoped<IEmailService, ExternalServices.Email.EmailService>();
             services.AddScoped<INotificationService, ExternalServices.Notifications.NotificationService>();
             services.AddScoped<IAuthenticationService, Auth.AuthenticationService>();

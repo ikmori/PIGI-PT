@@ -39,7 +39,7 @@ namespace PIGI_PT_Application.Commands.Usuario
                 ?? throw new KeyNotFoundException($"Categoría con ID '{request.CategoriaId}' no encontrada.");
 
             // Delegar al dominio (valida que sea operador, activo, etc.)
-            operador.AsignarCategoria(request.CategoriaId, request.AdminId);
+            operador.AsignarDepartamento(request.CategoriaId, request.AdminId);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -71,7 +71,7 @@ namespace PIGI_PT_Application.Commands.Usuario
             var operador = await _unitOfWork.Usuarios.GetByIdAsync(request.OperadorId)
                 ?? throw new KeyNotFoundException($"Operador con ID '{request.OperadorId}' no encontrado.");
 
-            operador.DesasignarCategoria(request.CategoriaId, request.AdminId);
+            operador.DesasignarDepartamento(request.AdminId);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

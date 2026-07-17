@@ -28,7 +28,7 @@ namespace PIGI_PT_Application.Validations.Usuario
                 .MinimumLength(6).WithMessage("La contraseña debe tener al menos 6 caracteres.");
 
             RuleFor(x => x.RolValor)
-                .InclusiveBetween(1, 4).WithMessage("El rol asignado debe ser válido (1=SuperAdmin, 2=Admin, 3=Operador, 4=UsuarioGeneral).");
+                .Must(r => r == 1 || r == 3 || r == 4).WithMessage("El rol asignado debe ser válido (1=Admin, 3=DepartamentoTecnologia, 4=Usuario).");
         }
     }
 }

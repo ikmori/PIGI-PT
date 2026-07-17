@@ -43,10 +43,10 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center gap-1">
                         <i class="bi bi-people text-primary"></i>
-                        <small class="text-muted">@cat.OperadoresCount operadores</small>
+                        <small class="text-muted">@cat.OperadoresCount responsables</small>
                     </div>
                     <div class="d-flex gap-1">
-                        <button class="btn btn-sm btn-outline-primary" title="Editar">
+                        <button class="btn btn-sm btn-outline-primary" title="Asignar Responsables" @onclick="() => AbrirModalAsignacion(cat)">
                             <i class="bi bi-pencil"></i>
                         </button>
                     </div>
@@ -85,10 +85,59 @@
     </div>
 }
 
+@* ── Modal de Asignación ── *@
+@if (categoriaEditando != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Asignar Responsables a @categoriaEditando.Nombre</h5>
+                    <button type="button" class="btn-close" @onclick="CerrarModalAsignacion"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">Selecciona los usuarios que deben recibir los incidentes asignados a esta categoría.</p>
+                    <div class="list-group">
+                        @foreach (var user in usuariosParaAsignar)
+                        {
+                            <label class="list-group-item d-flex gap-2">
+                                <input class="form-check-input flex-shrink-0" type="checkbox" @bind="user.IsAssigned" />
+                                <span>
+                                    @user.Nombre
+                                    <small class="d-block text-muted">@user.Rol</small>
+                                </span>
+                            </label>
+                        }
+                        @if (usuariosParaAsignar.Count == 0)
+                        {
+                            <div class="text-center text-muted p-3">
+                                No hay usuarios con rol de Responsable de Tecnología.
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="text-danger small me-auto">
+                            @errorMessage
+                        </div>
+                    }
+                    <button class="btn btn-secondary" @onclick="CerrarModalAsignacion">Cancelar</button>
+                    <button class="btn btn-premium" @onclick="GuardarAsignaciones">Guardar Asignaciones</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     private Usuario? currentUser;
     private List<CategoriaListItem> categorias = new();
     private bool mostrarFormCreacion = false;
+    private CategoriaListItem? categoriaEditando = null;
+    private List<UserSelection> usuariosParaAsignar = new();
+    private string errorMessage = "";
 
     private string nuevoNombre = "";
     private string nuevaDescripcion = "";
@@ -113,7 +162,7 @@
                 Nombre = c.Nombre,
                 Descripcion = c.Descripcion,
                 TicketsCount = tickets.Count(t => t.CategoriaId == c.Id && t.Estado != EstadoTicket.Resuelto && t.Estado != EstadoTicket.Cerrado),
-                OperadoresCount = usuarios.Count(u => u.Rol == Rol.Operador && u.CategoriasAsignadasIds.Contains(c.Id)),
+                OperadoresCount = usuarios.Count(u => u.Rol == Rol.DepartamentoTecnologia && u.DepartamentoId == c.Id),
                 IsActive = true
             }).ToList();
         }
@@ -135,6 +184,59 @@
             await CategoriaService.CreateCategoriaAsync(nueva);
             await CargarCategoriasReal();
             CerrarFormCreacion();
+        }
+    }
+
+    private async Task AbrirModalAsignacion(CategoriaListItem cat)
+    {
+        errorMessage = "";
+        categoriaEditando = cat;
+        if (currentUser != null)
+        {
+            var usuarios = await UsuarioService.GetUsuariosAsync(currentUser.InquilinoId);
+            usuariosParaAsignar = usuarios
+                .Where(u => u.Rol == Rol.DepartamentoTecnologia || u.Rol == Rol.Admin)
+                .Select(u => new UserSelection
+                {
+                    UsuarioId = u.Id,
+                    Nombre = u.Nombre,
+                    Rol = u.Rol.ToString(),
+                    IsAssigned = u.DepartamentoId == cat.Id,
+                    OriginalAssigned = u.DepartamentoId == cat.Id
+                }).ToList();
+        }
+    }
+
+    private void CerrarModalAsignacion()
+    {
+        categoriaEditando = null;
+    }
+
+    private async Task GuardarAsignaciones()
+    {
+        errorMessage = "";
+        if (categoriaEditando != null && currentUser != null)
+        {
+            try
+            {
+                foreach (var user in usuariosParaAsignar)
+                {
+                    if (user.IsAssigned && !user.OriginalAssigned)
+                    {
+                        await UsuarioService.AsignarCategoriaAsync(user.UsuarioId, categoriaEditando.Id, currentUser.Id);
+                    }
+                    else if (!user.IsAssigned && user.OriginalAssigned)
+                    {
+                        await UsuarioService.DesasignarCategoriaAsync(user.UsuarioId, categoriaEditando.Id, currentUser.Id);
+                    }
+                }
+                await CargarCategoriasReal();
+                CerrarModalAsignacion();
+            }
+            catch (Exception ex)
+            {
+                errorMessage = "Ocurrió un error al guardar: " + ex.Message;
+            }
         }
     }
 
@@ -174,5 +276,14 @@
         public int TicketsCount { get; set; }
         public int OperadoresCount { get; set; }
         public bool IsActive { get; set; } = true;
+    }
+
+    private class UserSelection
+    {
+        public Guid UsuarioId { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public string Rol { get; set; } = string.Empty;
+        public bool IsAssigned { get; set; }
+        public bool OriginalAssigned { get; set; }
     }
 }

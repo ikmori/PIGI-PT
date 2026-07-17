@@ -8,7 +8,7 @@ namespace PIGI_PT_Application.Commands.Ticket
     /// </summary>
     public static class TicketMapper
     {
-        public static TicketDto ToDto(PIGI_PT_Domain.Aggregates.Ticket.Ticket ticket)
+        public static TicketDto ToDto(PIGI_PT_Domain.Aggregates.Ticket.Ticket ticket, string? categoriaNombre = null, string? operadorNombre = null, string? creadorNombre = null, string? creadorEmail = null)
         {
             return new TicketDto
             {
@@ -22,9 +22,13 @@ namespace PIGI_PT_Application.Commands.Ticket
                 Prioridad = ticket.Prioridad.Nombre,
                 PrioridadValor = ticket.Prioridad.Valor,
                 CategoriaId = ticket.CategoriaId,
-                OperadorAsignadoId = ticket.OperadorAsignadoId,
+                NombreCategoria = categoriaNombre,
+                ResponsableTecnologiaId = ticket.ResponsableTecnologiaId,
+                ResponsableTecnologiaNombre = operadorNombre,
                 CreatedAt = ticket.CreatedAt,
                 CreatedBy = ticket.CreatedBy,
+                CreadorNombre = creadorNombre,
+                CreadorEmail = creadorEmail,
                 ModifiedAt = ticket.ModifiedAt,
                 FechaResolucion = ticket.FechaResolucion,
                 FechaAsignacion = ticket.FechaAsignacion,

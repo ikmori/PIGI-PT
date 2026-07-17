@@ -4,32 +4,19 @@
 <div class="nav-scrollable px-3 py-4">
     <nav class="nav flex-column gap-2">
 
-        @* ── Dashboard (todos los roles) ── *@
-        <NavLink class="nav-link custom-nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="" Match="NavLinkMatch.All">
-            <i class="bi bi-grid-1x2-fill fs-5"></i>
-            <span>@GetDashboardLabel()</span>
-        </NavLink>
-
-        @* ── Tickets — Admin/SuperAdmin: todos | Operador: mi área ── *@
+        @* ── Dashboard (solo admin) ── *@
         @if (EsAdmin())
         {
-            <NavLink class="nav-link custom-nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="tickets">
-                <i class="bi bi-ticket-detailed fs-5"></i>
-                <span>Tickets</span>
-            </NavLink>
-        }
-        else if (EsOperador())
-        {
-            <NavLink class="nav-link custom-nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="tickets">
-                <i class="bi bi-ticket-detailed fs-5"></i>
-                <span>Mis Tickets Asignados</span>
+            <NavLink class="nav-link custom-nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="" Match="NavLinkMatch.All">
+                <i class="bi bi-grid-1x2-fill fs-5"></i>
+                <span>@GetDashboardLabel()</span>
             </NavLink>
         }
 
-        @* ── Historial propio (todos) ── *@
-        <NavLink class="nav-link custom-nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="historial">
-            <i class="bi bi-clock-history fs-5"></i>
-            <span>@(EsUsuarioGeneral() ? "Mis Reportes" : "Historial")</span>
+        @* ── Tickets — Admin: todos | Operador: mi área | Usuario: mis reportes ── *@
+        <NavLink class="nav-link custom-nav-link rounded-3 px-3 py-2 d-flex align-items-center gap-3" href="tickets">
+            <i class="bi bi-ticket-detailed fs-5"></i>
+            <span>@(EsUsuario() ? "Mis Reportes" : "Tickets")</span>
         </NavLink>
 
         @* ── Gestión de Usuarios (solo Admin/SuperAdmin) ── *@
@@ -77,23 +64,22 @@
     }
 
     private bool EsAdmin() =>
-        currentUser != null && (currentUser.Rol == Rol.SuperAdmin || currentUser.Rol == Rol.Admin);
+        currentUser != null && currentUser.Rol == Rol.Admin;
 
-    private bool EsOperador() =>
-        currentUser != null && currentUser.Rol == Rol.Operador;
+    private bool EsDepartamentoTecnologia() =>
+        currentUser != null && currentUser.Rol == Rol.DepartamentoTecnologia;
 
-    private bool EsUsuarioGeneral() =>
-        currentUser != null && currentUser.Rol == Rol.UsuarioGeneral;
+    private bool EsUsuario() =>
+        currentUser != null && currentUser.Rol == Rol.Usuario;
 
     private string GetDashboardLabel()
     {
         if (currentUser == null) return "Dashboard";
         return currentUser.Rol switch
         {
-            Rol.SuperAdmin => "Dashboard",
             Rol.Admin => "Dashboard",
-            Rol.Operador => "Mi Panel",
-            Rol.UsuarioGeneral => "Mi Resumen",
+            Rol.DepartamentoTecnologia => "Mi Panel",
+            Rol.Usuario => "Mi Resumen",
             _ => "Dashboard"
         };
     }

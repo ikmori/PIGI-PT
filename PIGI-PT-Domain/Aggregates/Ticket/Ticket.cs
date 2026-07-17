@@ -25,7 +25,7 @@ namespace PIGI_PT_Domain.Aggregates.Ticket
         public EstadoTicket Estado { get; private set; }
         public NivelPrioridad Prioridad { get; private set; }
         public Guid? CategoriaId { get; private set; }
-        public Guid? OperadorAsignadoId { get; private set; }
+        public Guid? ResponsableTecnologiaId { get; private set; }
         public DateTime? FechaResolucion { get; private set; }
         public DateTime? FechaAsignacion { get; private set; }
 
@@ -147,10 +147,10 @@ namespace PIGI_PT_Domain.Aggregates.Ticket
         /// <param name="userId">ID del usuario que realiza la asignación</param>
         /// <exception cref="ArgumentException">Si los IDs son inválidos</exception>
         /// <exception cref="TicketInvalidStateTransitionException">Si no puede transicionar a EnProgreso</exception>
-        public void AsignarOperador(Guid operadorId, Guid userId)
+        public void AsignarResponsable(Guid responsableId, Guid userId)
         {
-            if (operadorId == Guid.Empty)
-                throw new ArgumentException("El identificador del operador es obligatorio.", nameof(operadorId));
+            if (responsableId == Guid.Empty)
+                throw new ArgumentException("El identificador del responsable es obligatorio.", nameof(responsableId));
 
             if (userId == Guid.Empty)
                 throw new ArgumentException("El identificador del usuario que realiza la asignación es obligatorio.", nameof(userId));
@@ -158,13 +158,13 @@ namespace PIGI_PT_Domain.Aggregates.Ticket
             if (!Estado.PuedeTransicionarA(EstadoTicket.EnProgreso))
                 throw new TicketInvalidStateTransitionException(Id, Estado, EstadoTicket.EnProgreso);
 
-            OperadorAsignadoId = operadorId;
+            ResponsableTecnologiaId = responsableId;
             FechaAsignacion = DateTime.UtcNow;
             Estado = EstadoTicket.EnProgreso;
             ModifiedBy = userId;
             ModifiedAt = DateTime.UtcNow;
 
-            AddDomainEvent(new OperadorAsignadoEvent(Id, operadorId));
+            AddDomainEvent(new ResponsableAsignadoEvent(Id, responsableId));
         }
 
         /// <summary>
@@ -190,7 +190,7 @@ namespace PIGI_PT_Domain.Aggregates.Ticket
             if (Estado.EstaResuelto)
                 throw new TicketAlreadyResolvedException(Id);
 
-            if (OperadorAsignadoId == null || OperadorAsignadoId == Guid.Empty)
+            if (ResponsableTecnologiaId == null || ResponsableTecnologiaId == Guid.Empty)
                 throw new TicketMissingOperatorException(Id);
 
             if (!Estado.PuedeTransicionarA(EstadoTicket.Resuelto))

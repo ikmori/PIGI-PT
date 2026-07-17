@@ -11,7 +11,7 @@ namespace PIGI_PT_API.Controllers.V1
     /// Controller para la gestión de usuarios dentro de un inquilino.
     /// Solo accesible por Admin y SuperAdmin.
     /// </summary>
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/v1/[controller]")]
     [Produces("application/json")]

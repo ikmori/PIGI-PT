@@ -12,7 +12,7 @@ namespace PIGI_PT_API.Controllers.V1
     /// Un inquilino representa una organización/empresa dentro de la plataforma.
     /// Solo accesible por SuperAdmin (gestión global) y Admin (gestión propia).
     /// </summary>
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/v1/[controller]")]
     [Produces("application/json")]

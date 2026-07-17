@@ -29,10 +29,9 @@ namespace PIGI_PT_Application.Tests.Usuarios
             var ticketsRepo = new TicketRepository(context);
             var inquilinosRepo = new InquilinoRepository(context);
             var usuariosRepo = new UsuarioRepository(context);
-            var riesgosRepo = new RiesgoOperacionalRepository(context);
             var categoriasRepo = new CategoriaRepository(context);
 
-            return new UnitOfWork(context, ticketsRepo, inquilinosRepo, usuariosRepo, riesgosRepo, categoriasRepo);
+            return new UnitOfWork(context, ticketsRepo, inquilinosRepo, usuariosRepo, categoriasRepo);
         }
 
         [Fact]
@@ -51,7 +50,7 @@ namespace PIGI_PT_Application.Tests.Usuarios
                 Email = "carlos@empresa.com",
                 UserName = "cperez",
                 Password = "hashedpassword",
-                RolValor = Rol.OPERADOR_VALUE
+                RolValor = Rol.DEPARTAMENTO_TECNOLOGIA_VALUE
             };
 
             // Act
@@ -83,7 +82,7 @@ namespace PIGI_PT_Application.Tests.Usuarios
                 "ana@empresa.com",
                 "agomez",
                 "pass123",
-                Rol.UsuarioGeneral
+                Rol.Usuario
             );
 
             await context.Usuarios.AddAsync(usuario);

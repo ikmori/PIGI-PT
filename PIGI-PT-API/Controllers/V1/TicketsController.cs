@@ -39,7 +39,7 @@ namespace PIGI_PT_API.Controllers.V1
             [FromQuery] Guid inquilinoId,
             [FromQuery] string? estado = null,
             [FromQuery] Guid? categoriaId = null,
-            [FromQuery] Guid? operadorId = null,
+            [FromQuery] Guid? responsableId = null,
             [FromQuery] Guid? createdByUserId = null)
         {
             if (inquilinoId == Guid.Empty)
@@ -52,7 +52,7 @@ namespace PIGI_PT_API.Controllers.V1
                 InquilinoId = inquilinoId,
                 Estado = estado,
                 CategoriaId = categoriaId,
-                OperadorAsignadoId = operadorId,
+                ResponsableTecnologiaId = responsableId,
                 CreatedByUserId = createdByUserId
             };
             var result = await _mediator.Send(query);
@@ -202,18 +202,18 @@ namespace PIGI_PT_API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<ActionResult<TicketDto>> AssignOperator(
+        public async Task<ActionResult<TicketDto>> AssignResponsable(
             [FromRoute] Guid id,
-            [FromBody] AssignOperatorRequest request)
+            [FromBody] AssignResponsableRequest request)
         {
-            _logger.LogInformation("PUT /api/v1/tickets/{Id}/assign - OperadorId: {OperadorId}", id, request.OperadorId);
+            _logger.LogInformation("PUT /api/v1/tickets/{Id}/assign - ResponsableId: {ResponsableId}", id, request.ResponsableId);
 
             try
             {
-                var command = new AssignOperatorCommand
+                var command = new AssignResponsableCommand
                 {
                     TicketId = id,
-                    OperadorId = request.OperadorId,
+                    ResponsableId = request.ResponsableId,
                     UserId = request.UserId
                 };
 
@@ -240,21 +240,21 @@ namespace PIGI_PT_API.Controllers.V1
         [HttpGet("por-area")]
         [ProducesResponseType(typeof(List<TicketDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<List<TicketDto>>> GetTicketsByOperadorArea(
+        public async Task<ActionResult<List<TicketDto>>> GetTicketsByAreaTecnologia(
             [FromQuery] Guid inquilinoId,
-            [FromQuery] Guid operadorId)
+            [FromQuery] Guid responsableId)
         {
-            if (inquilinoId == Guid.Empty || operadorId == Guid.Empty)
-                return BadRequest(new { error = "Los parámetros inquilinoId y operadorId son obligatorios." });
+            if (inquilinoId == Guid.Empty || responsableId == Guid.Empty)
+                return BadRequest(new { error = "Los parámetros inquilinoId y responsableId son obligatorios." });
 
-            _logger.LogInformation("GET /api/v1/tickets/por-area - OperadorId: {OperadorId}", operadorId);
+            _logger.LogInformation("GET /api/v1/tickets/por-area - ResponsableId: {ResponsableId}", responsableId);
 
             try
             {
-                var query = new PIGI_PT_Application.Queries.Ticket.GetTicketsByOperadorAreaQuery
+                var query = new PIGI_PT_Application.Queries.Ticket.GetTicketsByAreaTecnologiaQuery
                 {
                     InquilinoId = inquilinoId,
-                    OperadorId = operadorId
+                    ResponsableId = responsableId
                 };
                 var result = await _mediator.Send(query);
                 return Ok(result);
@@ -288,13 +288,50 @@ namespace PIGI_PT_API.Controllers.V1
             var result = await _mediator.Send(query);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Cancela un ticket por su ID.
+        /// Transiciona el estado a Cancelado (soft delete funcional).
+        /// </summary>
+        [HttpDelete("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> CancelTicket(
+            [FromRoute] Guid id,
+            [FromQuery] Guid userId)
+        {
+            if (userId == Guid.Empty)
+                return BadRequest(new { error = "El parámetro userId es obligatorio." });
+
+            _logger.LogInformation("DELETE /api/v1/tickets/{Id} - UserId: {UserId}", id, userId);
+
+            try
+            {
+                var command = new PIGI_PT_Application.Commands.Ticket.CancelTicketCommand
+                {
+                    TicketId = id,
+                    UserId = userId
+                };
+                await _mediator.Send(command);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { error = ex.Message });
+            }
+        }
     }
 
     // --- Request DTOs ---
 
-    public class AssignOperatorRequest
+    public class AssignResponsableRequest
     {
-        public Guid OperadorId { get; set; }
+        public Guid ResponsableId { get; set; }
         public Guid UserId { get; set; }
     }
 }
