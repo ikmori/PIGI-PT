@@ -1,5 +1,6 @@
 using System;
 using System.Net.Mail;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -7,10 +8,6 @@ using PIGI_PT_Application.Ports.Services;
 
 namespace PIGI_PT_Infraestructure.ExternalServices.Email
 {
-    /// <summary>
-    /// Adaptador que implementa IEmailService para el envío de correos.
-    /// Soporta configuración de SMTP y provee un fallback local en consola/logs de desarrollo.
-    /// </summary>
     public class EmailService : IEmailService
     {
         private readonly ILogger<EmailService> _logger;
@@ -37,7 +34,7 @@ namespace PIGI_PT_Infraestructure.ExternalServices.Email
             _useConsoleFallback = string.IsNullOrEmpty(_smtpHost);
         }
 
-        public async Task SendEmailAsync(string to, string subject, string body)
+        public async Task SendEmailAsync(string to, string subject, string body, CancellationToken cancellationToken = default)
         {
             if (_useConsoleFallback)
             {
@@ -67,13 +64,13 @@ namespace PIGI_PT_Infraestructure.ExternalServices.Email
                     smtpClient.EnableSsl = true;
                 }
 
-                await smtpClient.SendMailAsync(mailMessage);
+                await smtpClient.SendMailAsync(mailMessage, cancellationToken);
                 _logger.LogInformation("Email enviado exitosamente a {To}", to);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al enviar email a {To}. Reintentando con log en consola...", to);
-                // Fallback secundario ante error de envío SMTP
+                
                 _logger.LogInformation("=== SIMULACION DE EMAIL (FALLBACK POR ERROR) ===");
                 _logger.LogInformation("De: {From}", _fromAddress);
                 _logger.LogInformation("Para: {To}", to);

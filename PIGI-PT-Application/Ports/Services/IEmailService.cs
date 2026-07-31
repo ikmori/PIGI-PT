@@ -12,6 +12,7 @@ namespace PIGI_PT_Application.Ports.Services
         /// <param name="to">Dirección de correo electrónico del destinatario.</param>
         /// <param name="subject">Asunto del correo electrónico.</param>
         /// <param name="body">Cuerpo o contenido del mensaje (soporta texto plano o HTML).</param>
-        Task SendEmailAsync(string to, string subject, string body);
+        Task SendEmailAsync(string to, string subject, string body, CancellationToken cancellationToken = default);
+        
     }
 }

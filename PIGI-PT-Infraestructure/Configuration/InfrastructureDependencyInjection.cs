@@ -57,6 +57,8 @@ namespace PIGI_PT_Infraestructure.Configuration
             services.AddScoped<INotificationService, ExternalServices.Notifications.NotificationService>();
             services.AddScoped<IAuthenticationService, Auth.AuthenticationService>();
             services.AddScoped<IHangfireService, BackgroundJobs.HangfireService>();
+            
+            services.AddTransient<IEmailService, ExternalServices.Email.EmailService>();
 
             return services;
         }
