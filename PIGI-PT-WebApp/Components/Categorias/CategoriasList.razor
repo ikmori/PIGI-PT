@@ -46,8 +46,11 @@
                         <small class="text-muted">@cat.OperadoresCount responsables</small>
                     </div>
                     <div class="d-flex gap-1">
-                        <button class="btn btn-sm btn-outline-primary" title="Asignar Responsables" @onclick="() => AbrirModalAsignacion(cat)">
+                        <button class="btn btn-sm btn-outline-primary" title="Editar Categoría" @onclick="() => AbrirModalEdicion(cat)">
                             <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" title="Asignar Responsables" @onclick="() => AbrirModalAsignacion(cat)">
+                            <i class="bi bi-person-gear"></i>
                         </button>
                     </div>
                 </div>
@@ -85,7 +88,42 @@
     </div>
 }
 
-@* ── Modal de Asignación ── *@
+@* ── Modal de Edición de Categoría ── *@
+@if (categoriaEditandoDetalles != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Editar Categoría</h5>
+                    <button type="button" class="btn-close" @onclick="CerrarModalEdicion"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nombre de la Categoría</label>
+                        <input type="text" class="form-control" @bind="editNombre" placeholder="Nombre de la categoría..." />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Descripción</label>
+                        <textarea class="form-control" rows="3" @bind="editDescripcion" placeholder="Describe el área de responsabilidad..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    @if (!string.IsNullOrEmpty(editErrorMessage))
+                    {
+                        <div class="text-danger small me-auto">
+                            @editErrorMessage
+                        </div>
+                    }
+                    <button class="btn btn-secondary" @onclick="CerrarModalEdicion">Cancelar</button>
+                    <button class="btn btn-premium" @onclick="GuardarEdicionCategoria">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@* ── Modal de Asignación de Responsables ── *@
 @if (categoriaEditando != null)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
@@ -136,11 +174,16 @@
     private List<CategoriaListItem> categorias = new();
     private bool mostrarFormCreacion = false;
     private CategoriaListItem? categoriaEditando = null;
+    private CategoriaListItem? categoriaEditandoDetalles = null;
     private List<UserSelection> usuariosParaAsignar = new();
     private string errorMessage = "";
+    private string editErrorMessage = "";
 
     private string nuevoNombre = "";
     private string nuevaDescripcion = "";
+
+    private string editNombre = "";
+    private string editDescripcion = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -184,6 +227,46 @@
             await CategoriaService.CreateCategoriaAsync(nueva);
             await CargarCategoriasReal();
             CerrarFormCreacion();
+        }
+    }
+
+    private void AbrirModalEdicion(CategoriaListItem cat)
+    {
+        editErrorMessage = "";
+        categoriaEditandoDetalles = cat;
+        editNombre = cat.Nombre;
+        editDescripcion = cat.Descripcion;
+    }
+
+    private void CerrarModalEdicion()
+    {
+        categoriaEditandoDetalles = null;
+        editNombre = "";
+        editDescripcion = "";
+        editErrorMessage = "";
+    }
+
+    private async Task GuardarEdicionCategoria()
+    {
+        editErrorMessage = "";
+        if (categoriaEditandoDetalles != null && currentUser != null)
+        {
+            if (string.IsNullOrWhiteSpace(editNombre))
+            {
+                editErrorMessage = "El nombre de la categoría es obligatorio.";
+                return;
+            }
+
+            try
+            {
+                await CategoriaService.UpdateCategoriaAsync(categoriaEditandoDetalles.Id, editNombre, editDescripcion, currentUser.Id);
+                await CargarCategoriasReal();
+                CerrarModalEdicion();
+            }
+            catch (Exception ex)
+            {
+                editErrorMessage = "Ocurrió un error al guardar: " + ex.Message;
+            }
         }
     }
 

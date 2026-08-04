@@ -95,6 +95,40 @@ namespace PIGI_PT_API.Controllers.V1
                 return BadRequest(new { error = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Actualiza el nombre y descripción de una categoría.
+        /// </summary>
+        [HttpPut("{id:guid}")]
+        [ProducesResponseType(typeof(CategoriaDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<CategoriaDto>> UpdateCategoria([FromRoute] Guid id, [FromBody] UpdateCategoriaRequest request)
+        {
+            _logger.LogInformation("PUT /api/v1/categorias/{Id} - Nombre: {Nombre}", id, request.NombreCategoria);
+
+            try
+            {
+                var command = new UpdateCategoriaCommand
+                {
+                    CategoriaId = id,
+                    NombreCategoria = request.NombreCategoria,
+                    Descripcion = request.Descripcion,
+                    AdministradorId = request.AdministradorId
+                };
+
+                var result = await _mediator.Send(command);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
     }
 
     // --- Request DTOs ---
@@ -104,5 +138,12 @@ namespace PIGI_PT_API.Controllers.V1
         public string NombreCategoria { get; set; } = string.Empty;
         public string Descripcion { get; set; } = string.Empty;
         public Guid InquilinoId { get; set; }
+    }
+
+    public class UpdateCategoriaRequest
+    {
+        public string NombreCategoria { get; set; } = string.Empty;
+        public string Descripcion { get; set; } = string.Empty;
+        public Guid AdministradorId { get; set; }
     }
 }

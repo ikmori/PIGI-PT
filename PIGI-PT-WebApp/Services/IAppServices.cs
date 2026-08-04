@@ -44,6 +44,7 @@ namespace PIGI_PT_WebApp.Services
     {
         Task<List<Categoria>> GetCategoriasAsync(Guid inquilinoId);
         Task<Categoria> CreateCategoriaAsync(Categoria categoria);
+        Task<Categoria> UpdateCategoriaAsync(Guid id, string nombre, string descripcion, Guid adminId);
     }
 
     public interface IRiesgoService

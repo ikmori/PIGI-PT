@@ -533,6 +533,31 @@ namespace PIGI_PT_WebApp.Services
             }
         }
 
+        public async Task<Categoria> UpdateCategoriaAsync(Guid id, string nombre, string descripcion, Guid adminId)
+        {
+            try
+            {
+                var request = new
+                {
+                    NombreCategoria = nombre,
+                    Descripcion = descripcion,
+                    AdministradorId = adminId
+                };
+
+                var response = await _httpClient.PutAsJsonAsync($"api/v1/categorias/{id}", request);
+                if (response.IsSuccessStatusCode)
+                {
+                    var dto = await response.Content.ReadFromJsonAsync<CategoriaDto>();
+                    if (dto != null) return MapCategoria(dto);
+                }
+                throw new InvalidOperationException("No se pudo actualizar la categoría.");
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(ex.Message);
+            }
+        }
+
         private Categoria MapCategoria(CategoriaDto dto)
         {
             return new Categoria
