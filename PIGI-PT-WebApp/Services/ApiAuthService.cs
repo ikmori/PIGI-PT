@@ -37,7 +37,7 @@ namespace PIGI_PT_WebApp.Services
 
         public Task<int> GetUnreadNotificationsCountAsync()
         {
-            return Task.FromResult(3);
+            return Task.FromResult(0);
         }
 
         /// <summary>
