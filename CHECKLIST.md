@@ -24,7 +24,7 @@ Este documento detalla el progreso actual del proyecto en relación con el Roadm
 - [x] Soporte Multi-Tenant por cabeceras/consultas (`inquilinoId`).
 - [x] Configuración inicial de Roles y Permisos (RBAC).
 
-## Fase 5: Aplicación Web Frontend (Blazor) - 90% COMPLETADO
+## Fase 5: Aplicación Web Frontend (Blazor) - 100% COMPLETADO
 - [x] Interfaz gráfica interactiva y moderna con Blazor y Bootstrap.
 - [x] Layouts y menús dinámicos adaptados al Rol del usuario.
 - [x] Dashboard de Resumen con métricas y KPIs básicos.
@@ -39,7 +39,7 @@ Este documento detalla el progreso actual del proyecto en relación con el Roadm
 - [x] Enmascaramiento y sanitización obligatoria de datos antes de enviarse a la IA.
 - [x] **Pendiente**: Integrar **Hangfire** para ejecutar procesos en segundo plano (e.g., re-verificación de riesgos, limpiezas).
 
-## Entorno y Despliegue - 10% COMPLETADO
+## Entorno y Despliegue - 40% COMPLETADO
 - [x] Configuración para entorno de desarrollo local con `SQL Server LocalDB`.
 - [x] Soporte para inicialización automática de DB (Seed de prueba).
 - [x] **Pendiente**: Integración de notificaciones por Email (SendGrid / SMTP) tras la creación y asignación de tickets.
